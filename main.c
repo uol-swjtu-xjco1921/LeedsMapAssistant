@@ -19,10 +19,29 @@ int main(int argc, char* argv[]){
     }
     FILE *fp=fopen(mapFileName,"r");
     if (fp==NULL){
-        fprintf(stderr, "errors exist in openning map file %s\n", mapFileName);
-        exit(2); //error case 2: bad map file reading,
-    }
-    int nodeNum=getNodeNum(mapFileName);
-    int linkNum=getLinkNum(mapFileName);
+        fprintf(stderr, 
+            "errors exist in openning map file %s\n",
+            mapFileName
+            );
+        exit(2); //error case 2: bad map file reading
+    }// map file has openned
+
+    // int nodeNum=getNodeNum(mapFileName);
+    // int linkNum=getLinkNum(mapFileName);
     // printf("%d\n%d\n",nodeNum,linkNum);
+
+    int extract_out=extractData(fp);
+    if(extract_out==0){
+        printf(
+            "successfully ectract data from map file: %s\n",
+            mapFileName
+            );
+    }else{
+        fprintf(stderr, 
+            "errors exist in extract data from map file: %s\n",
+            mapFileName
+            );
+        exit(3); //error case 3: bad map file extracting
+    }
+    return 0;
 }
