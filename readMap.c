@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "routeplan.h"
 
 int getNodeNum(char* mapFileName){
     int nodeNum=0;
@@ -24,8 +25,8 @@ int getLinkNum(char* mapFileName){
     }
     return linkNum;
 }
-int main(){
-    printf("%d\n",getNodeNum("myMap.map"));
-    printf("%d\n",getLinkNum("myMap.map"));
 
-}
+// int main(){
+//     printf("%d\n",getNodeNum("myMap.map"));
+//     printf("%d\n",getLinkNum("myMap.map"));
+// }
