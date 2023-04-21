@@ -1,0 +1,18 @@
+Module design
+
+1. Main 
+This module includes 'main.c' file and constructs the main workflow of the whole project. Initially, it checks that inputs is valid and the map file is readable. Then it calls "Read map", "Route plan", "Error exit", "Visualize consequence" modules to process data, plan best routes, demonstrate the selected route in map. It provides the 3 plans of route finding to meet different demands. 
+
+2. Read map
+This module includes 'readMap.c', 'readMap.h', 'adjList.h' and can read，extract and reform map data from '.map' file. The functions 'getNodeNum' and 'getLinkNum' can get numbers of nodes and links and 'extractData' can gain attributes of nodes and links in map file. Then, the data extracted would be reformed in the data structure defined in 'adjList.h'. The data structure of output would be adjacent list and is expected to perform the algorithm of route planning more effectively. 
+
+3. Route plan
+This module may include 'routePlan.c', 'routePlan.h' and perform the algorithm of finding 3 kinds of best routes. The function 'init' would define some constants and malloc the structs used in algorithm. The function 'dijk' would utilize the Dijkstra's algorithm to find the path with shortest distance in task 1. And functions similiar to 'dijk' would be implemented to find path with shortest time in task 2 and find the best path with travelling POI in task 3.
+
+4. Error exit
+This module may include 'errorExit.c', 'errorExit.h' and is aimed to deal with different types of error. This module is reusable and would enhance the robustness of the project.
+
+5. Visualize consequence
+This module may include 'visualize.c', 'visualize.h' and draw the nodes, edges(ways), selected route in a 2D map to show the solution.
+
+(The design might be slightly changed in the future)

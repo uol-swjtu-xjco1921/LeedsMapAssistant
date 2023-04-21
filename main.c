@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <SDL2/SDL.h>
-#include "routeplan.h"
+#include "readMap.h"
 
 int main(int argc, char* argv[]){
 

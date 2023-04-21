@@ -1,5 +1,5 @@
-#ifndef routeplan_h
-#define routeplan_h
+#ifndef readMap_h
+#define readMap_h
 
 #include <stdio.h>
 int getNodeNum(char* mapFileName);

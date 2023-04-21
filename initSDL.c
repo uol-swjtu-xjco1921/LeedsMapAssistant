@@ -1,3 +1,7 @@
+/*
+  * Test whether SDL is available.
+  * 
+*/
 // Headers
 #include <SDL2/SDL.h>
 #include <stdio.h>

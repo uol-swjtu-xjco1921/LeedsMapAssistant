@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "routeplan.h"
+#include "readMap.h"
 
 int getNodeNum(char* mapFileName){
     int nodeNum=0;
