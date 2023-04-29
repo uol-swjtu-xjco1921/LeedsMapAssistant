@@ -1,0 +1,13 @@
+<link id=1 node=1 node=-11 way=236290813 length=2 veg=0.000000 arch=0.000000 land=0.000000 POI=3;/link>
+<link id=-2 node=1 node=-100001 way=236290813 length=1 veg=0.000000 arch=0.000000 land=0.000000 POI=;/link>
+<link id=3 node=-11 node=10001 way=236290813 length=1 veg=0.000000 arch=0.000000 land=0.000000 POI=;/link>
+<link id=-4 node=-11 node=101 way=236290813 length=3 veg=0.000000 arch=0.000000 land=0.000000 POI=7;/link>
+<link id=5 node=101 node=-1001 way=236290813 length=1 veg=0.000000 arch=0.000000 land=0.000000 POI=;/link>
+<link id=-6 node=-1001 node=10001 way=236290813 length=2 veg=0.000000 arch=0.000000 land=0.000000 POI=;/link>
+<link id=7 node=-100001 node=10001 way=236290813 length=3 veg=0.000000 arch=0.000000 land=0.000000 POI=-2;/link>
+<node id=1 lat=1.805406 lon=2.805406 /node>
+<node id=-11 lat=3.  lon=4.805406 /node>
+<node id=101 lat=5.805406 lon=6.805406 /node>
+<node id=-1001 lat=7.805406 lon=8.805406 /node>
+<node id=10001 lat=9.805406 lon=10 /node>
+<node id=-100001 lat=11.805406 lon=12.805406 /node>
