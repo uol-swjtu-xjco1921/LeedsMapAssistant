@@ -1,31 +1,135 @@
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include <math.h>
+/* my header files */
 #include "readMap.h"
+#define DELTA 1e-7
+#define DBL_MAX_ 1e15 
 
-int getNodeNum(char* mapFileName){
+/* utilities 
+ *
+ * int getRawNodeNum(char* mapFileName);
+ * int getRawLinkNum(char* mapFileName);
+ * int compare_pair_key(const void *a, const void *b);
+ * int find_value_by_key(Pair* pairs, int n, int key);
+ * int find_key_by_value(Pair* pairs2, int n, int value)
+ * int getRawNode(char* mapFileName, RawNode* rawNodeList, int nodeNum, Pair* pairs, Pair* pairs2);
+ * int getRawLink(char* mapFileName, RawEdge* rawEdgeList, int edgeNum, Pair* pairs, int nodeNum);
+*/
+
+/* for debugging
+ *
+ * void printRawEdgeList(RawEdge* rawEdgeList, int numEdges);
+ * void printRawNodeList(RawNode* rawNodeList, int numNodes);
+ * void printPairs(Pair* pairs, int numNodes);
+*/
+
+int getRawNodeNum(char* mapFileName) {
     int nodeNum=0;
     char str[500];
-    FILE *fp=fopen(mapFileName,"r");
+    FILE *fp=fopen(mapFileName, "r");
     while (fgets(str,500, fp) != NULL) {
         if (strstr(str, "<node id=") != NULL) {
             nodeNum++;
+    
         }
     }
+    fclose(fp);
     return nodeNum;
 }
-int getLinkNum(char* mapFileName){
+
+int getRawLinkNum(char* mapFileName){
     int linkNum=0;
     char str[500];
-    FILE *fp=fopen(mapFileName,"r");
+    FILE *fp=fopen(mapFileName, "r");
     while (fgets(str, 500, fp) != NULL) {
         if (strstr(str, "<link id=") != NULL) {
             linkNum++;
         }
     }
+    fclose(fp);
     return linkNum;
 }
-int extractData(FILE* fp){
+
+int compare_pair_key(const void *a, const void *b) {
+    Pair *p1 = (Pair *)a;
+    Pair *p2 = (Pair *)b;
+    return p1->key - p2->key;
+}
+
+int find_value_by_key(Pair* pairs, int n, int key) {
+    for(int i=0;i<n;i++){
+        if(pairs[i].key==key)
+            return pairs[i].value;
+    }
+    return -1; // not found
+}
+
+int find_key_by_value(Pair* pairs2, int n, int value) {
+    for(int i=0;i<n;i++){
+        if(pairs2[i].value==value)
+            return pairs2[i].key;
+    }
+    return -1; //  not found
+}
+
+int getRawNode(char* mapFileName, RawNode* rawNodeList, int nodeNum, Pair* pairs, Pair* pairs2){
+
+    int index=0;
+    
+    FILE* fp=fopen(mapFileName, "r");
+    // Read the map once a line
+    char str[500];
+    while (fgets(str, sizeof(str), fp)) {
+        // get newline without "\n" from the buffer string 
+        char *p = str;
+        char *q = str;
+        while (*p != '\0') {
+            if (*p != '\n') {
+                *q++ = *p;
+            }
+            p++;
+        }
+        *q = '\0';
+
+        
+        if(strncmp(str, "<node", 5) == 0) {
+             int id;
+             double lat,lon;
+             int count = sscanf(str, "<node id=%i lat=%lf lon=%lf /node>",
+                               &id, &lat, &lon);
+            if(count==3){
+                // printf("Node id: %d\n", id);
+                // printf("lat: %lf\n", lat);
+                // printf("lon: %lf\n\n", lon);
+                rawNodeList[index].id=id;
+                pairs[index].key=id;
+                pairs2[index].key=id;
+                rawNodeList[index].newId=index;
+                pairs[index].value=index;
+                pairs2[index].value=index;
+                rawNodeList[index].lat=lat;
+                rawNodeList[index].lon=lon;
+                if(index<=nodeNum)
+                    index++;
+                
+            }else {
+                printf("Failed to parse the node element.\n");
+                
+            }
+         }
+    }
+    fclose(fp);
+    return 0;
+}
+
+int getRawLink(char* mapFileName, RawEdge* rawEdgeList, int edgeNum, Pair* pairs, int nodeNum){
+
+    int index=0;
+    
+    FILE* fp=fopen(mapFileName, "r");
     // Read the map once a line
     char str[500];
     while (fgets(str, sizeof(str), fp)) {
@@ -42,56 +146,68 @@ int extractData(FILE* fp){
 
         // Parse the link element if it exists
         if (strncmp(str, "<link", 5) == 0) {
-            char id[20], node1[20], node2[20], way[20], poi[20];
+            int id, node1, node2, way;
+            char poi[30];
             double len, veg, arch, land;
-            int count = sscanf(str, "<link id=%s node=%s node=%s way=%s length=%lf veg=%lf arch=%lf land=%lf POI=%s;/link>",
-                               id, node1, node2, way, &len, &veg, &arch, &land, poi);
+            int count = sscanf(str, "<link id=%d node=%d node=%d way=%d length=%lf veg=%lf arch=%lf land=%lf POI=%s;/link>",
+                               &id, &node1, &node2, &way, &len, &veg, &arch, &land, poi);
 
             if (count == 9) {
-                printf("Link id: %s\n", id);
-                printf("Node 1: %s\n", node1);
-                printf("Node 2: %s\n", node2);
-                printf("Way: %s\n", way);
-                printf("Length: %lf\n", len);
-                printf("Veg: %lf\n", veg);
-                printf("Arch: %lf\n", arch);
-                printf("Land: %lf\n", land);
-                printf("POI: %s\n\n", poi);
-
+                // printf("Link id: %d\n", id);
+                rawEdgeList[index].id=id;
+                rawEdgeList[index].newId=index;
+                rawEdgeList[index].node1=node1;
+                rawEdgeList[index].newNode1=find_value_by_key(pairs, nodeNum, node1);
+                printf("%d ",rawEdgeList[index].newNode1);
+                rawEdgeList[index].node2=node2;
+                rawEdgeList[index].newNode2=find_value_by_key(pairs, nodeNum, node2);
+                printf("%d\n",rawEdgeList[index].newNode2);
+                rawEdgeList[index].len=len;
+                rawEdgeList[index].way=way;
+                rawEdgeList[index].veg=veg;
+                rawEdgeList[index].arch=arch;
+                rawEdgeList[index].land=land;
+                int poiLen = strlen(poi) + 1; 
+                rawEdgeList[index].poi = (char*) malloc(poiLen * sizeof(char));
+                strcpy(rawEdgeList[index].poi, poi);
+                if(index<=edgeNum)
+                    index++;
+                // printRawEdgeList(rawEdgeList, index);        
             } else {
                 printf("Failed to parse the link element.\n");
                 
             }
         }
-        if(strncmp(str, "<node", 5) == 0) {
-             char id[20];
-             double lat,lon;
-             int count = sscanf(str, "<node id=%s lat=%lf lon=%lf /link>",
-                               id, &lat, &lon);
-            if(count==3){
-                printf("Node id: %s\n", id);
-                printf("lat: %lf\n", lat);
-                printf("lon: %lf\n\n", lon);
-
-            }else {
-                printf("Failed to parse the node element.\n");
-                
-            }
-         }
+        
     }
     fclose(fp);
     return 0;
 }
-/*
-int main(){
-    FILE *fp = fopen("leeds.map", "r");
-    if (fp == NULL) {
-        fprintf(stderr, "File not found\n");
-        return -1;
-    }
-    //     printf("%d\n",getNodeNum("myMap.map"));
-    //     printf("%d\n",getLinkNum("myMap.map"));
-    extractData(fp);
 
-    return 0;
-}*/
+void printRawEdgeList(RawEdge* rawEdgeList, int numEdges) {
+    for (int i = 0; i < numEdges; i++) {
+        printf("id: %d, newId: %d, node1: %d, node2: %d, way: %d, len: %lf, veg: %lf, arch: %lf, land: %lf, poi: %s\n", 
+            rawEdgeList[i].id, rawEdgeList[i].newId, rawEdgeList[i].node1, rawEdgeList[i].node2, rawEdgeList[i].way, 
+            rawEdgeList[i].len, rawEdgeList[i].veg, rawEdgeList[i].arch, rawEdgeList[i].land, 
+            rawEdgeList[i].poi);
+    }
+    puts("");
+}
+
+void printRawNodeList(RawNode* rawNodeList, int numNodes) {
+    for (int i = 0; i < numNodes; i++) {
+        printf("id: %d, newId: %d, lat: %lf, lon: %lf\n",
+        rawNodeList[i].id, rawNodeList[i].newId, rawNodeList[i].lat, rawNodeList[i].lon);
+    }
+    puts("");
+}
+
+void printPairs(Pair* pairs, int numNodes){
+    puts("");
+    for(int i=0;i<numNodes;i++){
+        printf("index: %d, key: %d, value: %d\n",i, pairs[i].key, pairs[i].value);
+    }
+    puts("");
+}
+
+

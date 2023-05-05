@@ -1,16 +1,35 @@
-CC  = gcc
-CFLAGS = -std=c99 -Wall -Werror
-EXE = draft
-LINKS = -lSDL2
-INCDIR = -I/usr/include/SDL2
-all: ${EXE}
+CC = gcc
+CFLAGS = -Wall -Wextra -Werror -pedantic
+LDFLAGS =
+SRC = main.c readMap.c adjListUtils.c routePlan.c
+OBJ = $(SRC:.c=.o)
+DEP = readMap.h adjList.h
 
-%.o: %.c
-	$(CC) -c $(CFLAGS) $< -o $@  $(LINKS) $(INCDIR)
-draft: draft.o
-	$(CC) $(CCFLAGS) $^ -o $@ $(LINKS) $(INCDIR)
+all: main
+
+mytry: $(OBJ)
+	$(CC) $(LDFLAGS) $(OBJ) -o $@
+
+%.o: %.c $(DEP)
+	$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
-	rm -f *.o ${EXE}
+	rm -f $(OBJ) main
+
+
+# CC  = gcc
+# CFLAGS = -std=c99 -Wall -Werror
+# EXE = draft
+# LINKS = -lSDL2
+# INCDIR = -I/usr/include/SDL2
+# all: ${EXE}
+
+# %.o: %.c
+# 	$(CC) -c $(CFLAGS) $< -o $@  $(LINKS) $(INCDIR)
+# draft: draft.o
+# 	$(CC) $(CCFLAGS) $^ -o $@ $(LINKS) $(INCDIR)
+# clean:
+# 	rm -f *.o ${EXE}
 	
 # main.c with readMap.c
 # CC  = gcc
