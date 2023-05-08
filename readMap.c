@@ -8,7 +8,7 @@
 #define DELTA 1e-7
 #define DBL_MAX_ 1e15 
 
-/* utilities 
+/* utilities
  *
  * int getRawNodeNum(char* mapFileName);
  * int getRawLinkNum(char* mapFileName);
@@ -25,7 +25,6 @@
  * void printRawNodeList(RawNode* rawNodeList, int numNodes);
  * void printPairs(Pair* pairs, int numNodes);
 */
-
 int getRawNodeNum(char* mapFileName) {
     int nodeNum=0;
     char str[500];
@@ -51,6 +50,32 @@ int getRawLinkNum(char* mapFileName){
     }
     fclose(fp);
     return linkNum;
+}
+
+int getRawWayNum(char* mapFileName){
+    int wayNum=0;
+    char str[500];
+    FILE *fp=fopen(mapFileName, "r");
+    while (fgets(str, 500, fp) != NULL) {
+        if (strstr(str, "<way id=") != NULL) {
+            wayNum++;
+        }
+    }
+    fclose(fp);
+    return wayNum;
+}
+
+int getRawGeomNum(char* mapFileName){
+    int geomNum=0;
+    char str[500];
+    FILE *fp=fopen(mapFileName, "r");
+    while (fgets(str, 500, fp) != NULL) {
+        if (strstr(str, "<geom id=") != NULL) {
+            geomNum++;
+        }
+    }
+    fclose(fp);
+    return geomNum;
 }
 
 int compare_pair_key(const void *a, const void *b) {
@@ -117,7 +142,7 @@ int getRawNode(char* mapFileName, RawNode* rawNodeList, int nodeNum, Pair* pairs
                 
             }else {
                 printf("Failed to parse the node element.\n");
-                
+                exit(6);
             }
          }
     }
@@ -125,6 +150,49 @@ int getRawNode(char* mapFileName, RawNode* rawNodeList, int nodeNum, Pair* pairs
     return 0;
 }
 
+int getRawBound(char* mapFileName, double *bounding){
+    
+    FILE* fp=fopen(mapFileName, "r");
+    // Read the map once a line
+    char str[500];
+    while (fgets(str, sizeof(str), fp)) {
+        // get newline without "\n" from the buffer string 
+        char *p = str;
+        char *q = str;
+        while (*p != '\0') {
+            if (*p != '\n') {
+                *q++ = *p;
+            }
+            p++;
+        }
+        *q = '\0';
+        
+        
+        if(strncmp(str, "<bounding", 9) == 0) {
+            
+            double minLat,minLon,maxLon,maxLat;
+            int count = sscanf(str, "<bounding minLat=%lf minLon=%lf maxLat=%lf maxLon=%lf /bounding>",
+                   &minLat, &minLon, &maxLat, &maxLon);
+            if(count==4){
+                bounding[0]=minLat;
+                // printf("min lat: %lf\n", minLat);
+                bounding[1]=minLon;
+                // printf("min lat: %lf\n", minLon);
+                bounding[2]=maxLat;
+                // printf("min lat: %lf\n", minLat);
+                bounding[3]=maxLon;
+                // printf("min lat: %lf\n", minLon);                
+            }else {
+                printf("Failed to parse the bounding element.\n");
+                exit(6);
+            }
+         }
+    }
+    fclose(fp);
+    return 0;
+}
+//  int n = sscanf(xml, "<bounding minLat=\"%lf\" minLon=\"%lf\" maxLat=\"%lf\" maxLon=\"%lf\"/>",
+//                    &bounding.minLat, &bounding.minLon, &bounding.maxLat, &bounding.maxLon);
 int getRawLink(char* mapFileName, RawEdge* rawEdgeList, int edgeNum, Pair* pairs, int nodeNum){
 
     int index=0;
@@ -151,17 +219,17 @@ int getRawLink(char* mapFileName, RawEdge* rawEdgeList, int edgeNum, Pair* pairs
             double len, veg, arch, land;
             int count = sscanf(str, "<link id=%d node=%d node=%d way=%d length=%lf veg=%lf arch=%lf land=%lf POI=%s;/link>",
                                &id, &node1, &node2, &way, &len, &veg, &arch, &land, poi);
-
+            
             if (count == 9) {
                 // printf("Link id: %d\n", id);
                 rawEdgeList[index].id=id;
                 rawEdgeList[index].newId=index;
                 rawEdgeList[index].node1=node1;
                 rawEdgeList[index].newNode1=find_value_by_key(pairs, nodeNum, node1);
-                printf("%d ",rawEdgeList[index].newNode1);
+                // printf("%d ",rawEdgeList[index].newNode1);
                 rawEdgeList[index].node2=node2;
                 rawEdgeList[index].newNode2=find_value_by_key(pairs, nodeNum, node2);
-                printf("%d\n",rawEdgeList[index].newNode2);
+                // printf("%d\n",rawEdgeList[index].newNode2);
                 rawEdgeList[index].len=len;
                 rawEdgeList[index].way=way;
                 rawEdgeList[index].veg=veg;
@@ -174,8 +242,8 @@ int getRawLink(char* mapFileName, RawEdge* rawEdgeList, int edgeNum, Pair* pairs
                     index++;
                 // printRawEdgeList(rawEdgeList, index);        
             } else {
-                printf("Failed to parse the link element.\n");
-                
+                printf("Failed to parse the link element%d.\n",index);
+                exit(6);
             }
         }
         
@@ -183,6 +251,18 @@ int getRawLink(char* mapFileName, RawEdge* rawEdgeList, int edgeNum, Pair* pairs
     fclose(fp);
     return 0;
 }
+
+void checkLinkByNode(RawEdge* rawEdgeList, RawNode* rawNodeList,int nodeNum,int linkNum,bool* validLink){
+    
+    for(int i; i<linkNum;i++){
+        validLink[i]=false;
+        for (int j; j<nodeNum; j++)
+            if(rawEdgeList[i].node1==rawNodeList[j].id)
+                validLink[i]=true;
+
+    }
+}
+
 
 void printRawEdgeList(RawEdge* rawEdgeList, int numEdges) {
     for (int i = 0; i < numEdges; i++) {

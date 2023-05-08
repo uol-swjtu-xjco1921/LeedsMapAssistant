@@ -10,6 +10,13 @@
 #include "adjList.h"
 #include "readMap.h"
 
-void dijk(AdjList* adjList, int start, Pair* pairs2);
+typedef struct _PathList{
+    int pathNum;
+    int* path; 
+}PathList;
+
+void dijk(AdjList* adjList, int start, Pair* pairs2, int* pd); 
+void backtrackPath(int* pd, PathList* pathList, int start, int end, int nodeNum);
+void printPath(PathList* pathList);
 
 #endif

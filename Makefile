@@ -1,20 +1,23 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -pedantic
+CFLAGS = -Wall -Wextra -Werror
 LDFLAGS =
 SRC = main.c readMap.c adjListUtils.c routePlan.c
 OBJ = $(SRC:.c=.o)
-DEP = readMap.h adjList.h
+DEP = readMap.h adjList.h routePlan.h
+LINKS = -lSDL2
+INCDIR = -I/usr/include/SDL2
 
 all: main
 
-mytry: $(OBJ)
-	$(CC) $(LDFLAGS) $(OBJ) -o $@
+main: $(OBJ)
+	$(CC) $(LDFLAGS) $(OBJ) $(LINKS) -o $@
 
 %.o: %.c $(DEP)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(INCDIR) -c $< -o $@
 
 clean:
 	rm -f $(OBJ) main
+
 
 
 # CC  = gcc

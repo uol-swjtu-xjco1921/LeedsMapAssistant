@@ -288,7 +288,7 @@ void addEdge(AdjList* adjList, int start, int dest, double len) {
 }
 
 void addTotalEdge(AdjList* adjList, RawEdge* rawEdgeList, int edgeNum){
-    // quickly condtruct adjList
+    // quickly construct adjList
     for (int i=0;i<edgeNum;i++){
         // Example: addEdge(adjList, start, dest, length)
         // !Note: the edge here has the direction!
@@ -340,7 +340,7 @@ void printDist(double* dist, int nodeNum, Pair* pair2) {
 void dijk(AdjList* adjList, int start, Pair* pairs2) {
     // init dijkstra
     int lineNum = adjList->lineNum;
-    bool* travelSet=(bool*)malloc(lineNum*sizeof(bool)); //present set of travelled points 
+    bool* travelSet=(bool*)malloc(lineNum*sizeof(bool)); //present set of traveled points 
     double* dist=(double*)malloc(lineNum*sizeof(double)); //distance of each point
     
     for (int i = 0; i < lineNum; i++){

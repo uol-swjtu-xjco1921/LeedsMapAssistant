@@ -30,7 +30,7 @@ void addTotalEdge(AdjList* adjList, RawEdge* rawEdgeList, int edgeNum);
 int minDist(double *dist, bool *sptSet, int nodeNum);
 
 // for debugging
-void printDist(double* dist, int nodeNum, Pair* pair2);
+void printDist(double* dist, int nodeNum, Pair* pairs2);
 void printAdjList(AdjList* adjList);
 
 
