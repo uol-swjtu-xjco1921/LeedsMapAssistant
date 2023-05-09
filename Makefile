@@ -1,9 +1,9 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror
 LDFLAGS =
-SRC = main.c readMap.c adjListUtils.c routePlan.c
+SRC = main.c readMap.c adjListUtils.c routePlan.c visualize.c
 OBJ = $(SRC:.c=.o)
-DEP = readMap.h adjList.h routePlan.h
+DEP = readMap.h adjList.h routePlan.h visualize.h
 LINKS = -lSDL2
 INCDIR = -I/usr/include/SDL2
 
@@ -18,7 +18,7 @@ main: $(OBJ)
 clean:
 	rm -f $(OBJ) main
 
-
+	
 
 # CC  = gcc
 # CFLAGS = -std=c99 -Wall -Werror

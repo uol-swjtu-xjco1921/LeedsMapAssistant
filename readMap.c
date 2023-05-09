@@ -290,4 +290,3 @@ void printPairs(Pair* pairs, int numNodes){
     puts("");
 }
 
-
