@@ -5,7 +5,7 @@
 #define DELTA 1e-7
 #define DBL_MAX_ 1e15 
 
-void dijk(AdjList* adjList, int start, Pair* pairs2, int* pd) {
+void dijk(AdjList* adjList, int start, int* pd) {
     // init dijkstra
     int lineNum = adjList->lineNum;
     
@@ -36,8 +36,8 @@ void dijk(AdjList* adjList, int start, Pair* pairs2, int* pd) {
             // num++;
         }
     }
-
-    printDist(dist, lineNum, pairs2);
+    
+    // printDist(dist, lineNum, pairs2);
 }
 
 void printPath(PathList* pathList){

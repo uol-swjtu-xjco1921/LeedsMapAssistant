@@ -1,22 +1,21 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror
-LDFLAGS =
-SRC = main.c readMap.c adjListUtils.c routePlan.c visualize.c
-OBJ = $(SRC:.c=.o)
-DEP = readMap.h adjList.h routePlan.h visualize.h
-LINKS = -lSDL2
-INCDIR = -I/usr/include/SDL2
+LDFLAGS = `sdl2-config --cflags --libs` -lm "-lSDL2_ttf" 
+OBJ = main.o readMap.o adjListUtils.o routePlan.o visualize.o
+
 
 all: main
 
-main: $(OBJ)
-	$(CC) $(LDFLAGS) $(OBJ) $(LINKS) -o $@
+%.o: %.c
+	$(CC) -c  $(CFLAGS)  $< -o $@ $(LDFLAGS)
 
-%.o: %.c $(DEP)
-	$(CC) $(CFLAGS) $(INCDIR) -c $< -o $@
+main: $(OBJ)
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS) 
+
 
 clean:
 	rm -f $(OBJ) main
+
 
 	
 
