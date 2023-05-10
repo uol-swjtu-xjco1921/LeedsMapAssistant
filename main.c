@@ -14,7 +14,7 @@
 #define DBL_MAX_ 1e15 
 
 #define X_SIZE 1600
-#define Y_SIZE 760
+#define Y_SIZE 960
 #define MAP_X_SIZE 1200
 // #define RADIO 0.8
 SDL_Rect * graphicPoints;
@@ -35,6 +35,14 @@ void printText(int wd, int ht, int boxSize, char* input){
     SDL_DestroyTexture(text_texture); 
     SDL_FreeSurface(textAttr); 
     // return textAttr->w;
+}
+
+void printMenu(){
+    // printText(1200, 100, 100, "ababba");
+    printText(1300, 100, 20, "1.Min Distance");
+    printText(1300, 200, 20, "2.Min Time");
+    printText(1300, 300, 20, "3.Pass Certain Nodes");
+
 }
 
 bool withinBounding(double lon, double lat, double *bounding){
@@ -114,6 +122,7 @@ int showTask1Path(PathList* pathList, RawNode* rawNodeList, double *bounding,int
     // SDL_RenderPresent(renderer);
     return 0;
 }
+
 
 
 int main(int argc, char* argv[]) {
@@ -271,10 +280,8 @@ int main(int argc, char* argv[]) {
         }
         // puts("");
     }
-
-    
-    
-    
+   
+    printMenu();
     SDL_RenderPresent(renderer);
 
     // double* pts2=1;
@@ -284,6 +291,7 @@ int main(int argc, char* argv[]) {
 
     bool quit=false;
     int n=0;
+    int canClear=0;
     while(!quit){
 
         while(SDL_PollEvent(&ev)){
@@ -327,7 +335,7 @@ int main(int argc, char* argv[]) {
                             n=(n+1)%2;
                         }
 
-                        if(nid[1-n]!=-1&&nid[n]!=-1){
+                        if(nid[1-n]!=-1&&nid[n]!=-1&&n==0){
                             int* pd=(int*)calloc(nodeNum,sizeof(int));
                             dijk(adjList,nid[1-n],pd, dist);
                             if(dist[nid[n]]>1e10){
@@ -337,12 +345,58 @@ int main(int argc, char* argv[]) {
                             backtrackPath(pd, pathList, nid[1-n], nid[n], nodeNum);
                             printf("min dist=%lf\n", dist[nid[n]]);
                             showTask1Path(pathList, rawNodeList, bounding, pathNodeSize, validPathNode);
+                            canClear=1;
                         }
                         
                         SDL_RenderPresent(renderer);
+                        if (n==0){
+                            nid[0]=-1;
+                            nid[1]=-1;
+
+                        }
+                    }
+                    if(ev.button.button == SDL_BUTTON_RIGHT && canClear){
+                        SDL_RenderClear(renderer);
+                        //初始化
+                        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                        SDL_RenderClear(renderer);
+                        for(int i = 0; i < nodeNum; i++){
+                            if(validNode[i]){
+                                SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+                                SDL_RenderDrawRect(renderer,&graphicPoints[i]);
+                            }
+                        }
+
+                        for(int i=0;i<nodeNum;i++){
+                            Edge* tmp=adjList->adjLines[i];
+                            
+                            while(tmp!=NULL){
+                                
+                                int end=tmp->vertex;
+                                if(validNode[i]&&validNode[end])
+                                {    SDL_RenderDrawLine(renderer,
+                                        calXRelativePos(rawNodeList[i].lon,minLon,maxLon)* MAP_X_SIZE , 
+                                        (1 - calYRelativePos(rawNodeList[i].lat,minLat,maxLat)) * Y_SIZE ,  
+                                        calXRelativePos(rawNodeList[end].lon,minLon,maxLon) * MAP_X_SIZE , 
+                                    (1 - calYRelativePos(rawNodeList[end].lat,minLat,maxLat)) * Y_SIZE 
+                                        );
+                                    // printf("%d ",tmp->vertex);
+                                }
+                                tmp=tmp->next;
+                            }
+                            // puts("");
+                        }
+                    
+                        printMenu();
+                        SDL_RenderPresent(renderer);
+
+
+                        
+                        canClear=0;
                     }           
                     break;
                 }
+                
             }
         }
     }
