@@ -15,6 +15,6 @@
 
 double my_sqrt(double x);
 void printText(int wd, int ht, int boxSize, char* input);
-int mySdl(char* mapFileName, RawNode* rawNodeList, double* bounding, AdjList* adjList, PathList* pathList);
+int mySdl(char* mapFileName, RawNode* rawNodeList, double* bounding, AdjList* adjList, PathList* pathList, double* dist);
 int findNearestNode(RawNode* rawNodeList, int nodeNum, double xPos, double yPos, double* bounding);
 #endif

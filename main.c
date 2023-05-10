@@ -93,11 +93,11 @@ int main(int argc, char* argv[]) {
     
     // printAdjList(adjList);
 
-
+    double* dist=(double*)malloc(nodeNum*sizeof(double));
     int *pd=(int*)malloc(sizeof(int)*nodeNum);
     PathList *pathList=(PathList*)malloc(sizeof(PathList));
-    dijk(adjList, 0, pd);
-    // printf("\nlineNum: %d\n",adjList->lineNum);
+    dijk(adjList, 0, pd,dist);
+    printf("\nlineNum: %d\n",adjList->lineNum);
     
     // for(int i=0;i<adjList->lineNum;i++){
     //     printf("new id: %d original id: %d\n", i, find_key_by_value(pairs2, nodeNum, i));
@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
     // }
     backtrackPath(pd,pathList, 0, 100,nodeNum);
     
-    mySdl(mapFileName,rawNodeList,bounding, adjList,pathList);
+    mySdl(mapFileName,rawNodeList,bounding, adjList,pathList,dist);
 
     return 0;
 

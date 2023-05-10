@@ -15,7 +15,7 @@ typedef struct _PathList{
     int* path; 
 }PathList;
 
-void dijk(AdjList* adjList, int start, int* pd); 
+void dijk(AdjList* adjList, int start, int* pd, double* dist); 
 void backtrackPath(int* pd, PathList* pathList, int start, int end, int nodeNum);
 void printPath(PathList* pathList);
 

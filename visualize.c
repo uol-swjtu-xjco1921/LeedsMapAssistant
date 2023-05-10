@@ -23,6 +23,8 @@ TTF_Font *font;
 #define Y_SIZE 960
 #define RADIO 0.8
 
+
+
 void printText(int wd, int ht, int boxSize, char* input){
     SDL_Surface *textAttr;
     SDL_Color black={0,0,0,255};
@@ -115,7 +117,7 @@ int showTask1Path(PathList* pathList, RawNode* rawNodeList, double *bounding,int
     return 0;
 }
 
-int mySdl(char* mapFileName, RawNode* rawNodeList, double* bounding, AdjList* adjList, PathList* pathList){
+int mySdl(char* mapFileName, RawNode* rawNodeList, double* bounding, AdjList* adjList, PathList* pathList, double* dist){
     SDL_Init(SDL_INIT_EVERYTHING);
     // puts(SDL_GetError());
     if (TTF_Init() == -1)
@@ -241,10 +243,13 @@ int mySdl(char* mapFileName, RawNode* rawNodeList, double* bounding, AdjList* ad
                         printf("related point of %s: None \n", strArr[1-n]);
                         n=(n+1)%2;
                     }
+
                     if(nid[1-n]!=-1&&nid[n]!=-1){
                         int* pd=(int*)calloc(nodeNum,sizeof(int));
-                        dijk(adjList,nid[1-n],pd);
-                        backtrackPath(pd, pathList, nid[1], nid[0], nodeNum);
+                        dijk(adjList,nid[1-n],pd, dist);
+
+                        backtrackPath(pd, pathList, nid[1-n], nid[n], nodeNum);
+                        printf("min dist=%lf\n", dist[nid[n]]);
                         showTask1Path(pathList, rawNodeList, bounding, pathNodeSize, validPathNode);
                     }
                     

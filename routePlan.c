@@ -5,12 +5,12 @@
 #define DELTA 1e-7
 #define DBL_MAX_ 1e15 
 
-void dijk(AdjList* adjList, int start, int* pd) {
+void dijk(AdjList* adjList, int start, int* pd, double* dist) {
     // init dijkstra
     int lineNum = adjList->lineNum;
     
     bool* travelSet=(bool*)malloc(lineNum*sizeof(bool)); //present set of traveled points 
-    double* dist=(double*)malloc(lineNum*sizeof(double)); //distance of each point
+    // double* dist=(double*)malloc(lineNum*sizeof(double)); //distance of each point
     
     for (int i = 0; i < lineNum; i++){
         pd[i]=-1;
