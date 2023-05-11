@@ -40,6 +40,41 @@ void dijk(AdjList* adjList, int start, int* pd, double* dist) {
     // printDist(dist, lineNum, pairs2);
 }
 
+void dijkTime(AdjList* adjListTime, int start, int* pd, double* dist) {
+    // init dijkstra
+    int lineNum = adjListTime->lineNum;
+    
+    bool* travelSet=(bool*)malloc(lineNum*sizeof(bool)); //present set of traveled points 
+    // double* dist=(double*)malloc(lineNum*sizeof(double)); //distance of each point
+    
+    for (int i = 0; i < lineNum; i++){
+        pd[i]=-1;
+        travelSet[i] = false;
+        dist[i] = DBL_MAX_;
+    }
+    dist[start] = 0;
+    // perform dijk
+    for (int count = 0; count < lineNum - 1; count++) {
+        //u
+        int idMin = minDist(dist, travelSet, lineNum);
+        travelSet[idMin] = true;
+        Edge* tmp;
+        // int num=0;
+        for (tmp = adjListTime->adjLines[idMin]; tmp != NULL; tmp = tmp->next) {
+            double tmpLen = tmp->len;
+            int tmpId = tmp->vertex;
+            if ( fabs(DBL_MAX_-dist[idMin]) > DELTA && travelSet[tmpId]==false && dist[tmpId]-dist[idMin]-tmpLen > DELTA ) {
+                dist[tmpId] = dist[idMin] + tmpLen;
+                pd[tmpId]=idMin;
+                // printf("pd[%i]=%d\n",tmpId,idMin);
+            }
+            // num++;
+        }
+    }
+    
+    // printDist(dist, lineNum, pairs2);
+}
+
 void printPath(PathList* pathList){
     puts("");
     for(int i=0;i<pathList->pathNum;i++){

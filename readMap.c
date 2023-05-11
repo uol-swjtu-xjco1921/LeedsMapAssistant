@@ -235,6 +235,13 @@ int getRawLink(char* mapFileName, RawEdge* rawEdgeList, int edgeNum, Pair* pairs
                 rawEdgeList[index].veg=veg;
                 rawEdgeList[index].arch=arch;
                 rawEdgeList[index].land=land;
+                if(len>60){
+                    rawEdgeList[index].speed=30;
+                }else if(len>20){
+                    rawEdgeList[index].speed=20;
+                }else{
+                    rawEdgeList[index].speed=5;
+                }
                 int poiLen = strlen(poi) + 1; 
                 rawEdgeList[index].poi = (char*) malloc(poiLen * sizeof(char));
                 strcpy(rawEdgeList[index].poi, poi);

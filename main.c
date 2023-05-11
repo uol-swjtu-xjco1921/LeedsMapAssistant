@@ -21,9 +21,12 @@ SDL_Rect * graphicPoints;
 SDL_Rect * pathPoints;
 SDL_Window * window;
 SDL_Renderer * renderer;    
-TTF_Font *font;
+
 
 void printText(int wd, int ht, int boxSize, char* input){
+    TTF_Font *font;
+    font=TTF_OpenFont("times.ttf",20);
+    // puts(SDL_GetError());
     SDL_Surface *textAttr;
     SDL_Color black={0,0,0,255};
     textAttr=TTF_RenderText_Solid(font,input,black);
@@ -31,19 +34,27 @@ void printText(int wd, int ht, int boxSize, char* input){
     SDL_Rect dest = {0, 0, textAttr->w, textAttr->h};
     SDL_Rect src = {wd, ht, textAttr->w, boxSize};
     SDL_RenderCopy(renderer, text_texture, &dest, &src); 
-    SDL_RenderPresent(renderer);
+    
     SDL_DestroyTexture(text_texture); 
     SDL_FreeSurface(textAttr); 
     // return textAttr->w;
 }
 
 void printMenu(){
-    // printText(1200, 100, 100, "ababba");
+    // printText(1200, 100, 100, "");
     printText(1300, 100, 20, "1.Min Distance");
     printText(1300, 200, 20, "2.Min Time");
     printText(1300, 300, 20, "3.Pass Certain Nodes");
+    printText(1300, 400, 20, "4.Info of Node");
+    printText(1300, 500, 20, "5.Info of Link");
+    // printText(1300, 300, 20, "3.Pass Certain Nodes");
+    // SDL_RenderPresent(renderer);
+    // SDL_RenderPresent(renderer);
+
 
 }
+
+
 
 bool withinBounding(double lon, double lat, double *bounding){
     double minLat = bounding[0];
@@ -88,8 +99,47 @@ int findNearestNode(RawNode *rawNodeList, int nodeNum, double xPos, double yPos,
     }
     return id;
 }
-
-int showTask1Path(PathList* pathList, RawNode* rawNodeList, double *bounding,int pathNodeSize, bool* validPathNode){
+void initSDL(int nodeNum, SDL_Rect* graphicPoints, AdjList* adjList,RawNode* rawNodeList,double* bounding, bool* validNode)    
+   { 
+    double minLat = bounding[0];
+    double minLon = bounding[1];
+    double maxLat = bounding[2];
+    double maxLon = bounding[3];
+    
+    //画点
+    for(int i = 0; i < nodeNum; i++){
+        if(validNode[i]){
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+            SDL_RenderDrawRect(renderer,&graphicPoints[i]);
+        }
+    }
+    //画线
+    for(int i=0;i<nodeNum;i++){
+        Edge* tmp=adjList->adjLines[i];
+        
+        while(tmp!=NULL){
+            
+            int end=tmp->vertex;
+            if(validNode[i]&&validNode[end])
+            {    SDL_RenderDrawLine(renderer,
+                    calXRelativePos(rawNodeList[i].lon,minLon,maxLon)* MAP_X_SIZE , 
+                    (1 - calYRelativePos(rawNodeList[i].lat,minLat,maxLat)) * Y_SIZE ,  
+                    calXRelativePos(rawNodeList[end].lon,minLon,maxLon) * MAP_X_SIZE , 
+                (1 - calYRelativePos(rawNodeList[end].lat,minLat,maxLat)) * Y_SIZE 
+                    );
+                // printf("%d ",tmp->vertex);
+            }
+            tmp=tmp->next;
+        }
+        // puts("");
+    }
+    
+    // printMenu();
+    
+    
+    SDL_RenderPresent(renderer);
+}
+int showTaskPath(PathList* pathList, RawNode* rawNodeList, double *bounding,int pathNodeSize, bool* validPathNode){
     double minLat = bounding[0];
     double minLon = bounding[1];
     double maxLat = bounding[2];
@@ -119,15 +169,13 @@ int showTask1Path(PathList* pathList, RawNode* rawNodeList, double *bounding,int
         );
 
     }
-    // SDL_RenderPresent(renderer);
+    SDL_RenderPresent(renderer);
     return 0;
 }
 
 
-
 int main(int argc, char* argv[]) {
-    // int linkNum = 6;
-    // AdjList* adjList = createAdjList(linkNum);
+    
     char* mapFileName;
     if (argc==1){
         printf("usage: %s mapFile\n",argv[0]);
@@ -150,10 +198,7 @@ int main(int argc, char* argv[]) {
     }
     fclose(fp);
 
-    // int nodeNum=getNodeNum(mapFileName);
-    // int linkNum=getLinkNum(mapFileName);
-    // printf("%d\n%d\n",nodeNum,linkNum);
-    // char* mapFileName="leeds.map";
+    
     double *bounding=(double*)malloc(sizeof(double)*4);
     printf("get bounding? %d\n",getRawBound(mapFileName, bounding));
     int linkNum=getRawLinkNum(mapFileName);
@@ -167,59 +212,45 @@ int main(int argc, char* argv[]) {
     Pair *pairs2 = (Pair *)malloc(nodeNum * sizeof(Pair));
 
     AdjList* adjList = initAdjList(nodeNum);
+    AdjList* adjListTime = initAdjList(nodeNum);
+
 
     RawNode* rawNodeList=(RawNode*)malloc(nodeNum*sizeof(RawNode));
     
     getRawNode(mapFileName, rawNodeList, nodeNum, pairs, pairs2);
-    // printf("\n node:\n");
-    // printRawNodeList(rawNodeList, nodeNum);
-    // printPairs(pairs,nodeNum);
 
-    // sort by original id for quicker searching
     qsort(pairs, nodeNum, sizeof(Pair), compare_pair_key);
 
-    // printPairs(pairs, nodeNum);
-    puts("");
-    // printPairs(pairs2, nodeNum);
 
     RawEdge* rawEdgeList=(RawEdge*)malloc(linkNum*sizeof(RawEdge));
     getRawLink(mapFileName, rawEdgeList, linkNum, pairs, nodeNum);
-    // printRawEdgeList(rawEdgeList, linkNum);
     
     for (int i=0;i<linkNum;i++){
-        // printf("node1: %d node2: %d len: %lf\n",rawEdgeList[i].newNode1,rawEdgeList[i].newNode2, rawEdgeList[i].len);
         addEdge(adjList, rawEdgeList[i].newNode1, rawEdgeList[i].newNode2, rawEdgeList[i].len);
         addEdge(adjList, rawEdgeList[i].newNode2, rawEdgeList[i].newNode1, rawEdgeList[i].len);
-        // printf("%d\n",i);
     }
-
-
-    // Example: addEdge(adjList, start, dest, length)
-    // addEdge(adjList,0,1,2);
-    // addEdge(adjList,1,0,2);
-    
-    // printAdjList(adjList);
+    for (int i=0;i<linkNum;i++){
+        addEdgeTime(adjListTime, rawEdgeList[i].newNode1, rawEdgeList[i].newNode2, rawEdgeList[i].len,rawEdgeList[i].speed);
+        addEdgeTime(adjListTime, rawEdgeList[i].newNode2, rawEdgeList[i].newNode1, rawEdgeList[i].len,rawEdgeList[i].speed);
+        
+    }
 
     double* dist=(double*)malloc(nodeNum*sizeof(double));
     int *pd=(int*)malloc(sizeof(int)*nodeNum);
     PathList *pathList=(PathList*)malloc(sizeof(PathList));
+
     dijk(adjList, 0, pd,dist);
     printf("\nlineNum: %d\n",adjList->lineNum);
-    
-    // for(int i=0;i<adjList->lineNum;i++){
-    //     printf("new id: %d original id: %d\n", i, find_key_by_value(pairs2, nodeNum, i));
-    //     dijk(adjList, i, pairs2);
-    // }
     backtrackPath(pd,pathList, 0, 100,nodeNum);
-    
+    int basicNodeSize=6;
+    int pathNodeSize=8;
     SDL_Init(SDL_INIT_EVERYTHING);
     // puts(SDL_GetError());
     if (TTF_Init() == -1)
     {
         return -1;
     }
-    font=TTF_OpenFont("times.ttf",20);
-    puts(SDL_GetError());
+    
 
     window = SDL_CreateWindow("Path visualization", SDL_WINDOWPOS_CENTERED,
     SDL_WINDOWPOS_CENTERED, X_SIZE, Y_SIZE, SDL_WINDOW_SHOWN);
@@ -236,8 +267,7 @@ int main(int argc, char* argv[]) {
     double maxLat = bounding[2];
     double maxLon = bounding[3];
 
-    int basicNodeSize=6;
-    int pathNodeSize=8;
+    
 
     for(int i = 0; i < nodeNum; i++){
         
@@ -251,152 +281,197 @@ int main(int argc, char* argv[]) {
     }
 
 
-    //初始化
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_RenderClear(renderer);
-    for(int i = 0; i < nodeNum; i++){
-        if(validNode[i]){
-            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-            SDL_RenderDrawRect(renderer,&graphicPoints[i]);
-        }
-    }
-
-    for(int i=0;i<nodeNum;i++){
-        Edge* tmp=adjList->adjLines[i];
-        
-        while(tmp!=NULL){
-            
-            int end=tmp->vertex;
-            if(validNode[i]&&validNode[end])
-            {    SDL_RenderDrawLine(renderer,
-                    calXRelativePos(rawNodeList[i].lon,minLon,maxLon)* MAP_X_SIZE , 
-                    (1 - calYRelativePos(rawNodeList[i].lat,minLat,maxLat)) * Y_SIZE ,  
-                    calXRelativePos(rawNodeList[end].lon,minLon,maxLon) * MAP_X_SIZE , 
-                (1 - calYRelativePos(rawNodeList[end].lat,minLat,maxLat)) * Y_SIZE 
-                    );
-                // printf("%d ",tmp->vertex);
-            }
-            tmp=tmp->next;
-        }
-        // puts("");
-    }
-   
-    printMenu();
-    SDL_RenderPresent(renderer);
+    
 
     // double* pts2=1;
+
     SDL_Event ev;
     int nid[2]={-1,-1};
     char strArr[2][10] = {"start", "end"};
 
     bool quit=false;
     int n=0;
-    int canClear=0;
+    // int canClear=0;
+    int keyOfMenu=-1;
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderClear(renderer);
+    //初始化
+    initSDL(nodeNum, graphicPoints, adjList, rawNodeList, bounding, validNode);
+    printMenu();
+    SDL_RenderPresent(renderer);
     while(!quit){
-
+    
         while(SDL_PollEvent(&ev)){
+            
 
-            // if(ev.type==SDL_QUIT){
-            //     quit=true;
-            // }
             switch(ev.type){
                 case SDL_QUIT:
                      quit=true;
-                     break;            
+                     break;          
                 
                 case SDL_MOUSEBUTTONDOWN:
-                {     
-                    if(ev.button.button == SDL_BUTTON_LEFT) {
-                        // 处理鼠标左键按下事件
-                        SDL_Rect arr;
-                        int x = ev.button.x;
-                        int y = ev.button.y;
-                        n=(n+1)%2;
-                        printf("click point pos: (%d ,%d)\n", x,y);
-                        nid[1-n]=findNearestNode(rawNodeList,nodeNum,x,y,bounding);
-                        
-                        if(nid[1-n]!=-1)
+                {
+    //             {    //初始化
+    //                 initSDL(nodeNum, graphicPoints, adjList, rawNodeList, bounding, validNode);
+    //                 printMenu();
+    // SDL_RenderPresent(renderer);
+                    switch (keyOfMenu){
+                        case 1:
                         {
-                            arr.w = pathNodeSize;
-                            arr.h = pathNodeSize;
-                            arr.x = graphicPoints[nid[1-n]].x;
-                            arr.y = graphicPoints[nid[1-n]].y;
-                            SDL_RenderDrawRect(renderer,&arr);
-                            SDL_SetRenderDrawColor(renderer,0,0,0,255);
-                            SDL_RenderFillRect(renderer,&arr);
-                            printf("At %s pos: (%d, %d)\n",strArr[1-n], graphicPoints[nid[1-n]].x, graphicPoints[nid[1-n]].y);
-                            char text[200];
-                            sprintf(text, "At %s pos: (%d, %d)", strArr[1-n], graphicPoints[nid[1-n]].x, graphicPoints[nid[1-n]].y);
-
-                            // printText(300, 100, 100, text);
-                            // printf("related point of %s: id=%d lon=%lf, lat=%lf\n", strArr[1-n],rawNodeList[nid[1-n]].id,rawNodeList[nid[1-n]].lon,rawNodeList[nid[1-n]].lat);
-                        }else{
-                            printf("related point of %s: None \n", strArr[1-n]);
-                            n=(n+1)%2;
-                        }
-
-                        if(nid[1-n]!=-1&&nid[n]!=-1&&n==0){
-                            int* pd=(int*)calloc(nodeNum,sizeof(int));
-                            dijk(adjList,nid[1-n],pd, dist);
-                            if(dist[nid[n]]>1e10){
-                                printf("no link or way !!!\n");
-                                break;
-                            }
-                            backtrackPath(pd, pathList, nid[1-n], nid[n], nodeNum);
-                            printf("min dist=%lf\n", dist[nid[n]]);
-                            showTask1Path(pathList, rawNodeList, bounding, pathNodeSize, validPathNode);
-                            canClear=1;
-                        }
+                        // initSDL(nodeNum, graphicPoints, adjList, rawNodeList, bounding, validNode);
+                        // printMenu();
+                        // SDL_RenderPresent(renderer);
                         
-                        SDL_RenderPresent(renderer);
-                        if (n==0){
+                        if(ev.button.button == SDL_BUTTON_LEFT) {
+                            // 处理鼠标左键按下事件
+                            
+                            SDL_Rect arr;
+                            int x = ev.button.x;
+                            int y = ev.button.y;
+                            n=(n+1)%2;
+                            printf("click point pos: (%d ,%d)\n", x,y);
+                            nid[1-n]=findNearestNode(rawNodeList,nodeNum,x,y,bounding);
+                            
+                            if(nid[1-n]!=-1)
+                            {
+                                arr.w = pathNodeSize;
+                                arr.h = pathNodeSize;
+                                arr.x = graphicPoints[nid[1-n]].x;
+                                arr.y = graphicPoints[nid[1-n]].y;
+                                SDL_RenderDrawRect(renderer,&arr);
+                                SDL_SetRenderDrawColor(renderer,0,0,0,255);
+                                SDL_RenderFillRect(renderer,&arr);
+                                SDL_RenderPresent(renderer);
+                                printf("At %s pos: (%d, %d)\n",strArr[1-n], graphicPoints[nid[1-n]].x, graphicPoints[nid[1-n]].y);
+                                char text[200];
+                                sprintf(text, "At %s pos: (%d, %d)", strArr[1-n], graphicPoints[nid[1-n]].x, graphicPoints[nid[1-n]].y);
+
+                                // printText(300, 100, 100, text);
+                                // printf("related point of %s: id=%d lon=%lf, lat=%lf\n", strArr[1-n],rawNodeList[nid[1-n]].id,rawNodeList[nid[1-n]].lon,rawNodeList[nid[1-n]].lat);
+                            }else{
+                                printf("related point of %s: None \n", strArr[1-n]);
+                                n=(n+1)%2;
+                            }
+
+                            if(nid[1-n]!=-1&&nid[n]!=-1&&n==0){
+                                int* pd=(int*)calloc(nodeNum,sizeof(int));
+                                dijk(adjListTime,nid[1-n],pd, dist);
+                                
+                                if(dist[nid[n]]>1e10){
+                                    printf("no link or way !!!\n");
+                                    break;
+                                }
+                                backtrackPath(pd, pathList, nid[1-n], nid[n], nodeNum);
+                                printf("min time=%lf\n", dist[nid[n]]);
+                                showTaskPath(pathList, rawNodeList, bounding, pathNodeSize, validPathNode);
+                                // canClear=1;
+                            }
+                            
+                            
+                            if (n==0){
                             nid[0]=-1;
                             nid[1]=-1;
 
                         }
+                        }else if(ev.button.button == SDL_BUTTON_RIGHT){
+                            // SDL_RenderClear(renderer);
+                            //初始化
+                            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                            SDL_RenderClear(renderer);
+                            initSDL(nodeNum, graphicPoints, adjList, rawNodeList, bounding, validNode);
+                            printText(1250,50,20,"Link=");
+                            SDL_RenderPresent(renderer);
+                            n=(n+1)%2;
+                            // canClear=0;
+                        } 
+                        // SDL_RenderPresent(renderer);
+                        break;
+                        }
                     }
-                    if(ev.button.button == SDL_BUTTON_RIGHT && canClear){
-                        SDL_RenderClear(renderer);
-                        //初始化
-                        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-                        SDL_RenderClear(renderer);
-                        for(int i = 0; i < nodeNum; i++){
-                            if(validNode[i]){
-                                SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-                                SDL_RenderDrawRect(renderer,&graphicPoints[i]);
-                            }
-                        }
-
-                        for(int i=0;i<nodeNum;i++){
-                            Edge* tmp=adjList->adjLines[i];
-                            
-                            while(tmp!=NULL){
-                                
-                                int end=tmp->vertex;
-                                if(validNode[i]&&validNode[end])
-                                {    SDL_RenderDrawLine(renderer,
-                                        calXRelativePos(rawNodeList[i].lon,minLon,maxLon)* MAP_X_SIZE , 
-                                        (1 - calYRelativePos(rawNodeList[i].lat,minLat,maxLat)) * Y_SIZE ,  
-                                        calXRelativePos(rawNodeList[end].lon,minLon,maxLon) * MAP_X_SIZE , 
-                                    (1 - calYRelativePos(rawNodeList[end].lat,minLat,maxLat)) * Y_SIZE 
-                                        );
-                                    // printf("%d ",tmp->vertex);
-                                }
-                                tmp=tmp->next;
-                            }
-                            // puts("");
-                        }
-                    
-                        printMenu();
-                        SDL_RenderPresent(renderer);
-
-
-                        
-                        canClear=0;
-                    }           
                     break;
                 }
-                
+                case SDL_KEYDOWN:
+                {
+                    int key = ev.key.keysym.sym;
+                    
+                    if (key == SDLK_1)
+                    {   
+                        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+                        SDL_RenderClear(renderer);
+                        SDL_RenderPresent(renderer);
+                         //初始化
+                        initSDL(nodeNum, graphicPoints, adjList, rawNodeList, bounding, validNode);
+                        keyOfMenu=1;
+                        printText(1250,50,20,"Link=");
+                        SDL_RenderPresent(renderer);
+                        // calculate dijk min dist
+
+                        
+                    }
+                    else if(key == SDLK_2)
+                    {
+                        keyOfMenu=2;
+
+                        // calculate dijk min time
+                        break;
+                    }
+                    else if(key == SDLK_3)
+                    {
+                        keyOfMenu=3;
+
+                        // calculate min dist passing certain point
+                        break;
+                    }
+                    else if(key == SDLK_4)
+                    {   
+                        keyOfMenu=4;
+
+                        // ADD new link
+                        break;
+                    }
+                    else if(key == SDLK_5)
+                    {   
+                        keyOfMenu=5;
+
+                        // add attribute (speed）
+                        break;  
+                    }
+                    else if(key == SDLK_6)
+                    {
+                        keyOfMenu=6;
+
+                        // edit exist attribute
+                    }
+
+
+                    // else if (key == SDLK_RETURN)
+                    // {
+                    //     SDL_StopTextInput();
+                    //     int speed = atoi(text);
+                    //     editEdge(speed, allNodes, shortest_path, G, Edge);
+                    //     printf("%d\n", speed);
+                    //     // for(int i = 0; i <G->edge_num; i++){
+                    //     // if(Edge[i].speed != 0){
+                    //     //     printf("%d %d\n",Edge[i].edge_id,Edge[i].speed);
+                    //     // }
+                    //     // }
+                    //     deletePath(&necPathNodeIndex, &allNodes, shortest_path, &shortest_distance, pathPoints);
+                    // }
+                    // else if(key == SDLK_LALT)
+                    // {
+                    //     isKeyDown = 1;
+                    // }
+                    // else if(key  == SDLK_LCTRL){
+                    //     isKeyDown = 2;
+                    // }
+                    // else if (key == SDLK_s && isKeyDown == 2)
+                    // {
+                    //     // printf("!!!");
+                    //     writeIntoFile("leeds2.txt",G,Vertex,Edge,Geom,Way);
+                    // }
+                    break;
+                }
             }
         }
     }

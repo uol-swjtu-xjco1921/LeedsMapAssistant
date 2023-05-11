@@ -26,6 +26,7 @@ typedef struct _AdjList {
 // utilities
 AdjList* initAdjList(int nodeNum);
 void addEdge(AdjList* adjList, int start, int dest, double len);
+void addEdgeTime(AdjList* adjList, int start, int dest, double len, double speed);
 void addTotalEdge(AdjList* adjList, RawEdge* rawEdgeList, int edgeNum);
 int minDist(double *dist, bool *sptSet, int nodeNum);
 

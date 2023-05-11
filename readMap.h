@@ -18,6 +18,7 @@ typedef struct _RawEdge {
     double arch; // arch value in the 'link' label
     double land; // land value in the 'link' label
     char* poi; // poi info in the 'link' label
+    double speed;
 }RawEdge;
 
 typedef struct _RawNode { 

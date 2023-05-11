@@ -32,6 +32,16 @@ void addEdge(AdjList* adjList, int start, int dest, double len) {
     adjList->adjLines[start] = edge;
     // printf("%d\n",adjList->lineNum);
 }
+void addEdgeTime(AdjList* adjList, int start, int dest, double len, double speed) {
+    Edge* edge = (Edge*)malloc(sizeof(Edge));
+    edge->vertex = dest;
+    // printf("%d ",edge->vertex);
+    edge->len = len/speed;
+    edge->next = adjList->adjLines[start];
+    
+    adjList->adjLines[start] = edge;
+    // printf("%d\n",adjList->lineNum);
+}
 
 void addTotalEdge(AdjList* adjList, RawEdge* rawEdgeList, int edgeNum){
     // quickly construct adjList
