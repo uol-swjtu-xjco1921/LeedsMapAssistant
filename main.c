@@ -23,7 +23,7 @@ SDL_Window * window;
 SDL_Renderer * renderer;    
 
 
-void printText(int wd, int ht, int boxSize, char* input){
+int printText(int wd, int ht, int boxSize, char* input){
     TTF_Font *font;
     font=TTF_OpenFont("times.ttf",20);
     // puts(SDL_GetError());
@@ -37,7 +37,7 @@ void printText(int wd, int ht, int boxSize, char* input){
     
     SDL_DestroyTexture(text_texture); 
     SDL_FreeSurface(textAttr); 
-    // return textAttr->w;
+    return 0;
 }
 
 void printMenu(){
@@ -258,7 +258,7 @@ int main(int argc, char* argv[]) {
     
     
     graphicPoints = (SDL_Rect *)malloc(sizeof(SDL_Rect) * nodeNum);
-    pathPoints = (SDL_Rect *)malloc(sizeof(SDL_Rect)*pathList->pathNum);
+    
     bool* validNode = (bool*)calloc(nodeNum, sizeof(bool));
     bool* validPathNode = (bool*)calloc(nodeNum, sizeof(bool));
 
@@ -288,8 +288,9 @@ int main(int argc, char* argv[]) {
     SDL_Event ev;
     int nid[2]={-1,-1};
     char strArr[2][10] = {"start", "end"};
-
+    int h_tmp=300;
     bool quit=false;
+    // bool isPrint=false;
     int n=0;
     // int canClear=0;
     int keyOfMenu=-1;
@@ -342,14 +343,47 @@ int main(int argc, char* argv[]) {
                                 SDL_SetRenderDrawColor(renderer,0,0,0,255);
                                 SDL_RenderFillRect(renderer,&arr);
                                 SDL_RenderPresent(renderer);
-                                printf("At %s pos: (%d, %d)\n",strArr[1-n], graphicPoints[nid[1-n]].x, graphicPoints[nid[1-n]].y);
-                                char text[200];
-                                sprintf(text, "At %s pos: (%d, %d)", strArr[1-n], graphicPoints[nid[1-n]].x, graphicPoints[nid[1-n]].y);
+                                printf("At %s pos(id = %d): (%d, %d)\n",strArr[1-n],nid[1-n], graphicPoints[nid[1-n]].x, graphicPoints[nid[1-n]].y);
+                                
 
-                                // printText(300, 100, 100, text);
+                                // SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                                // SDL_RenderClear(renderer);
+                                // //初始化
+                                // initSDL(nodeNum, graphicPoints, adjList, rawNodeList, bounding, validNode);
+                                // printMenu();
+                                // SDL_RenderPresent(renderer);
+                                // SDL_RenderDrawRect(renderer,&arr);
+                                // SDL_SetRenderDrawColor(renderer,0,0,0,255);
+                                // SDL_RenderFillRect(renderer,&arr);
+                                // SDL_RenderPresent(renderer);
+                                char text[3][200];
+                                
+                                sprintf(text[0], "Click at pos (id = %d)", nid[1-n]);
+                                sprintf(text[1], " (%lf, %lf)", rawNodeList[nid[1-n]].lon, rawNodeList[nid[1-n]].lat);
+                                sprintf(text[2], " (%d, %d)", graphicPoints[nid[1-n]].x, graphicPoints[nid[1-n]].y);
+                                printText(1300,h_tmp,20,text[0]);
+                                h_tmp+=20;
+                                printf("%d\n",h_tmp);
+                                
+                                printText(1300,h_tmp,20,text[1]);
+                                h_tmp+=20;
+                                printf("%d\n",h_tmp);
+                                
+
+                                printText(1300,h_tmp,20,text[2]);
+                                h_tmp+=20;
+                                printf("%d\n",h_tmp);
+
+
+                                
+                                    
+                                    // printText(1220, 250, 20, text[0]);
+                                    // printText(1220, 300, 20, text[1]);
+                                
                                 // printf("related point of %s: id=%d lon=%lf, lat=%lf\n", strArr[1-n],rawNodeList[nid[1-n]].id,rawNodeList[nid[1-n]].lon,rawNodeList[nid[1-n]].lat);
                             }else{
                                 printf("related point of %s: None \n", strArr[1-n]);
+
                                 n=(n+1)%2;
                             }
 
@@ -362,6 +396,7 @@ int main(int argc, char* argv[]) {
                                     break;
                                 }
                                 backtrackPath(pd, pathList, nid[1-n], nid[n], nodeNum);
+                                pathPoints = (SDL_Rect *)malloc(sizeof(SDL_Rect)*pathList->pathNum);
                                 printf("min time=%lf\n", dist[nid[n]]);
                                 showTaskPath(pathList, rawNodeList, bounding, pathNodeSize, validPathNode);
                                 // canClear=1;
@@ -380,6 +415,7 @@ int main(int argc, char* argv[]) {
                             SDL_RenderClear(renderer);
                             initSDL(nodeNum, graphicPoints, adjList, rawNodeList, bounding, validNode);
                             printText(1250,50,20,"Link=");
+                            h_tmp=300;
                             SDL_RenderPresent(renderer);
                             n=(n+1)%2;
                             // canClear=0;
@@ -394,7 +430,7 @@ int main(int argc, char* argv[]) {
                 {
                     int key = ev.key.keysym.sym;
                     
-                    if (key == SDLK_1)
+                    if (key == SDLK_1&&keyOfMenu==-1)
                     {   
                         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
