@@ -41,7 +41,7 @@ int printText(int wd, int ht, int boxSize, char* input){
 }
 
 void printMenu(){
-    // printText(1200, 100, 100, "");
+    printText(1250, 40, 20, "Menu for route planning:");
     printText(1300, 100, 20, "1.Min Distance");
     printText(1300, 200, 20, "2.Min Time");
     printText(1300, 300, 20, "3.Pass Certain Nodes");
