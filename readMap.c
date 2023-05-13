@@ -199,7 +199,7 @@ int getRawLink(char* mapFileName, RawEdge* rawEdgeList, int edgeNum, Pair* pairs
     
     FILE* fp=fopen(mapFileName, "r");
     // Read the map once a line
-    char str[500];
+    char str[1000];
     while (fgets(str, sizeof(str), fp)) {
         // get newline without "\n" from the buffer string 
         char *p = str;
@@ -258,6 +258,10 @@ int getRawLink(char* mapFileName, RawEdge* rawEdgeList, int edgeNum, Pair* pairs
     fclose(fp);
     return 0;
 }
+// int getWayNum(char* mapFileName){
+
+// }
+// int getRawWay(char* mapFileName, Way* way, Pair* pairs, int nodeNum);
 
 void checkLinkByNode(RawEdge* rawEdgeList, RawNode* rawNodeList,int nodeNum,int linkNum,bool* validLink){
     

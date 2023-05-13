@@ -121,9 +121,10 @@ int findNearestNode(RawNode *rawNodeList, int nodeNum, double xPos, double yPos,
 
 int findLink(int start, int end, RawEdge* rawEdgeList,int linkNum){
     for(int i=0;i<linkNum;i++){
+        
         if((rawEdgeList[i].newNode1==start&&rawEdgeList[i].newNode2==end)
-        ||(rawEdgeList[i].newNode1==start&&rawEdgeList[i].newNode2==end)){
-            return rawEdgeList[i].id;
+        ||(rawEdgeList[i].newNode2==start&&rawEdgeList[i].newNode1==end)){
+            return i;
         }
     }
     return -1;
@@ -781,6 +782,17 @@ int main(int argc, char* argv[]) {
                                         n=n-1;
                                     }
                                 }
+                            }else if(ev.button.button==SDL_BUTTON_RIGHT){
+                                 if(keyOfMenu==4){
+                                    isFirst=true;
+                                }
+                                keyOfMenu=-1;
+                                
+                                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                                SDL_RenderClear(renderer);
+                                initSDL(nodeNum, graphicPoints, adjList, rawNodeList, bounding, validNode);
+                                printMenu();
+                                SDL_RenderPresent(renderer);
                             }
                             break;
                         }
@@ -997,23 +1009,48 @@ int main(int argc, char* argv[]) {
                                 // printTextSize(1220,100,20,text4,30);
 
                             // }
-                            
+                            // #include <stdio.h>
+
+                            // int main() {
+                            //     char input_str[] = "1 102.3";
+                            //     int integer_value;
+                            //     double double_value;
+
+                            //     sscanf(input_str, "%d %lf", &integer_value, &double_value);
+
+                            //     printf("整数: %d\n", integer_value);
+                            //     printf("浮点数: %lf\n", double_value);
+
+                            //     return 0;
+                            // }
+
+                                
+                                int mode=-1;
+                                double changeVal=0;
+                                int check=sscanf(text4, "%d %lf",&mode, &changeVal);
+                                // printf("整数: %d\n", mode);
+                                // printf("浮点数: %lf\n", changeVal);
+                                printf("%d\n",check);
+                                if(check==2&&oid[0]!=-1&&oid[1]!=-1){
+                                    printf("%d\noid[0]=%d/%d \n oid[1]=%d/%d\n",check,oid[0],find_key_by_value(pairs2, nodeNum, oid[0]),oid[1],find_key_by_value(pairs2, nodeNum, oid[1]));
+                                    int linkId=findLink(oid[0], oid[1],rawEdgeList,linkNum);
+                                    if (linkId!=-1){
+                                        editLinkVal(mode,rawEdgeList,changeVal,linkId);
+                                        printf("Edit Successfully! Try to restart and reload map file now.\n");
+                                        // printf();
+                                    }
+                                    else{
+                                        printf("No Related Link found\n");
+                                    }
+
+                                }
+                            // }else if ( key == SDLK_e){
+                                
+                            // }
                             
 
                             // SDL_RenderPresent(renderer);
                         }
-                    }else if (keyOfMenu == 4 && key==SDLK_BACKSPACE)
-                    {
-                        // 删除 text4 字符串的最后一个字符
-                        if (strlen(text4) > 0)
-                        {
-                            text4[strlen(text4) - 1] = '\0';
-                        }
-                        // printTextSize(1220, 100, 20, text4, 30);
-                        printf("%s\n", text4);
-                        // SDL_RenderPresent(renderer);
-                    }else if (keyOfMenu == 4 && key == SDLK_e){
-                        
                     }
 
                     

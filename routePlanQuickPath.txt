@@ -1,2 +1,2 @@
-The Quickest Path from start pos (id = 416/54070542) to end pos (id = 419/54070553) is: 
-416->417->418->419
+The Quickest Path from start pos (id = 414/54070520) to end pos (id = 419/54070553) is: 
+414->427->1262->1495->431->430->418->419

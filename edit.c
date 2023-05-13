@@ -5,8 +5,9 @@ int editLinkVal(int mode, RawEdge* rawEdgeList, double changeVal, int linkId){
     switch (mode)
     {
         case 1:
-        {
+        {   printf("link[%d].veg from %.3lf to %.3lf\n",i,rawEdgeList[i].veg, changeVal);
             rawEdgeList[i].veg=changeVal;
+            // printf("link[%d].veg from %.3lf to %.3lf\n",i,);
             break;
         }
         case 2:
@@ -22,6 +23,11 @@ int editLinkVal(int mode, RawEdge* rawEdgeList, double changeVal, int linkId){
         case 4:
         {
             rawEdgeList[i].speed=changeVal;
+            break;
+        }
+        case 5:
+        {
+            rawEdgeList[i].len=changeVal;
             break;
         }
     }
