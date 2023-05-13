@@ -35,10 +35,11 @@ typedef struct _RawNode {
 // node=-1851654833 node=-1851654832 node=-1851654830 
 // node=-1851654831 /way>
 
-typedef struct _Way{
+typedef struct _Other{
     int id;
     int nodeNum;
     int* nodeList;
+    int* newNodeList;
 }Way,Geom;
 
 // <geom id=27776429 node=304990743 node=304990745 node=304990746 node=1862252982 
@@ -66,6 +67,9 @@ int find_key_by_value(Pair* pairs2, int n, int value);
 int getRawNode(char* mapFileName, RawNode* rawNodeList, int nodeNum, Pair* pairs, Pair* pairs2);
 int getRawLink(char* mapFileName, RawEdge* rawEdgeList, int edgeNum, Pair* pairs, int nodeNum);
 int getRawBound(char* mapFileName, double *bounding);
+int getWayEachNodeNum(char* mapFileName, Way* wayList);
+int getRawWay(char* mapFileName, Way* wayList, int wayNum, Pair* pairs,int nodeNum);
+
 
 // for debugging
 void printRawEdgeList(RawEdge* rawEdgeList, int numEdges);

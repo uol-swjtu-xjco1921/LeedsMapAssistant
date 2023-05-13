@@ -275,7 +275,10 @@ int main(int argc, char* argv[]) {
 
     AdjList* adjList = initAdjList(nodeNum);
     AdjList* adjListTime = initAdjList(nodeNum);
-
+    Way*  wayList=(Way*)malloc(sizeof(Way)*wayNum);
+    getWayEachNodeNum(mapFileName,wayList);
+    getRawWay(mapFileName,wayList,wayNum,pairs,nodeNum);
+    // Geom* geomList=(Geom*)malloc(sizeof(Geom)*geomNum);
 
     RawNode* rawNodeList=(RawNode*)malloc(nodeNum*sizeof(RawNode));
     
@@ -286,7 +289,7 @@ int main(int argc, char* argv[]) {
 
     RawEdge* rawEdgeList=(RawEdge*)malloc(linkNum*sizeof(RawEdge));
     getRawLink(mapFileName, rawEdgeList, linkNum, pairs, nodeNum);
-    
+
     for (int i=0;i<linkNum;i++){
         addEdge(adjList, rawEdgeList[i].newNode1, rawEdgeList[i].newNode2, rawEdgeList[i].len);
         addEdge(adjList, rawEdgeList[i].newNode2, rawEdgeList[i].newNode1, rawEdgeList[i].len);
@@ -296,6 +299,8 @@ int main(int argc, char* argv[]) {
         addEdgeTime(adjListTime, rawEdgeList[i].newNode2, rawEdgeList[i].newNode1, rawEdgeList[i].len,rawEdgeList[i].speed);
         
     }
+
+
 
     double* dist=(double*)malloc(nodeNum*sizeof(double));
     int *pd=(int*)malloc(sizeof(int)*nodeNum);
