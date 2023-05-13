@@ -10,6 +10,8 @@
 #include "readMap.h"
 #include "routePlan.h"
 #include "visualize.h"
+#include "edit.h"
+
 #define DELTA 1e-7
 #define DBL_MAX_ 1e15 
 
@@ -116,6 +118,17 @@ int findNearestNode(RawNode *rawNodeList, int nodeNum, double xPos, double yPos,
     }
     return id;
 }
+
+int findLink(int start, int end, RawEdge* rawEdgeList,int linkNum){
+    for(int i=0;i<linkNum;i++){
+        if((rawEdgeList[i].newNode1==start&&rawEdgeList[i].newNode2==end)
+        ||(rawEdgeList[i].newNode1==start&&rawEdgeList[i].newNode2==end)){
+            return rawEdgeList[i].id;
+        }
+    }
+    return -1;
+}
+
 void initSDL(int nodeNum, SDL_Rect* graphicPoints, AdjList* adjList,RawNode* rawNodeList,double* bounding, bool* validNode)    
    { 
     double minLat = bounding[0];
@@ -156,6 +169,9 @@ void initSDL(int nodeNum, SDL_Rect* graphicPoints, AdjList* adjList,RawNode* raw
     
     SDL_RenderPresent(renderer);
 }
+
+
+
 int showTaskPath(PathList* pathList, RawNode* rawNodeList, double *bounding,int pathNodeSize, bool* validPathNode){
     double minLat = bounding[0];
     double minLon = bounding[1];
@@ -189,6 +205,34 @@ int showTaskPath(PathList* pathList, RawNode* rawNodeList, double *bounding,int 
     SDL_RenderPresent(renderer);
     return 0;
 }
+
+// int editLinkVal(int mode, RawEdge* rawEdgeList, double changeVal, int linkId){
+//     int i=linkId;
+//     switch (mode)
+//     {
+//         case 1:
+//         {
+//             rawEdgeList[i].speed=changeVal;
+//             break;
+//         }
+//         case 2:
+//         {
+//             rawEdgeList[i].arch=changeVal;
+//             break;
+//         }
+//         case 3:
+//         {
+//             rawEdgeList[i].veg=changeVal;
+//             break;
+//         }
+//         case 4:
+//         {
+//             rawEdgeList[i].land=changeVal;
+//             break;
+//         }
+//     }
+//     return 0;
+// }
 
 
 int main(int argc, char* argv[]) {
@@ -305,6 +349,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    
 
     
 
@@ -328,8 +373,10 @@ int main(int argc, char* argv[]) {
     memset(oid, -1, sizeof(oid));
     bool stopSelect=false;
     double tmpDist3=0;
-    char text4[50]={0};
-    int textPos=0;
+    char text4[50]={};
+    // char text4cp[50]={};
+    // int textPos=-1;
+    bool isFirst=true;
     
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
@@ -674,15 +721,17 @@ int main(int argc, char* argv[]) {
                         break;
                         }
                         case 4:
-                        {
+                        {   
                             SDL_Point pos={ev.button.x, ev.button.y};
                             if(SDL_PointInRect(&pos, textBox)){
-                                memset(text4,0,sizeof(text4));
+                                
                                 
                                 SDL_StartTextInput();
+                                // SDL_RenderPresent(renderer);
+
                             }else{
                                 SDL_StopTextInput();
-                                textPos=0;
+                                
                             }
                             break;
                         }
@@ -769,6 +818,9 @@ int main(int argc, char* argv[]) {
 
                         // edit exist attribute
                     }else if(key == SDLK_ESCAPE){
+                        if(keyOfMenu==4){
+                            isFirst=true;
+                        }
                         keyOfMenu=-1;
                         
                         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -892,13 +944,31 @@ int main(int argc, char* argv[]) {
                         else if(keyOfMenu==4){
                         // printf("%s%s%s%s\n",text4[0],text4[1],text4[2],text4[3]);
 
-                            printTextSize(1220,100,20,text4,30);
+                            // if(text4[0]!='\0'){
+                                // printTextSize(1220,100,20,text4,30);
+
+                            // }
                             
                             
 
-                            SDL_RenderPresent(renderer);
+                            // SDL_RenderPresent(renderer);
                         }
+                    }else if (keyOfMenu == 4 && key==SDLK_BACKSPACE)
+                    {
+                        // 删除 text4 字符串的最后一个字符
+                        if (strlen(text4) > 0)
+                        {
+                            text4[strlen(text4) - 1] = '\0';
+                        }
+                        // printTextSize(1220, 100, 20, text4, 30);
+                        printf("%s\n", text4);
+                        // SDL_RenderPresent(renderer);
                     }
+
+                    
+
+                    break;
+                
 
 
                     // else if (key == SDLK_RETURN)
@@ -931,15 +1001,29 @@ int main(int argc, char* argv[]) {
                 case SDL_TEXTINPUT:
                 {   
                     if(keyOfMenu==4){
-                        if(textPos!=0){
-                            strcat(text4,ev.text.text);
+                        if ((strcmp(ev.text.text, "4") == 0)&& (isFirst)){
+                            isFirst=false;
+                            memset(text4, 0, sizeof(text4));
                         }
-                        textPos++;
-                        printf("%s",text4);
+                        else
+                        {
+                            strcat(text4, ev.text.text);
+                            printTextSize(1220,100,20,text4,30);
+                            printf("%s\n",text4);
+                            SDL_RenderPresent(renderer);
+                        }
+                        
+                        
+                    
+                        
+                        
+                        
+                        
                     }
                     
                     break;
-                } 
+                }
+                
             }
 
         }
