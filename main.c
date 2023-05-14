@@ -370,7 +370,18 @@ int main(int argc, char* argv[]) {
     
     graphicPoints = (SDL_Rect *)malloc(sizeof(SDL_Rect) * nodeNum);
     
-
+    writeEditedMap(
+        "newLeeds.map",
+        bounding,
+        rawEdgeList,
+        rawNodeList,
+        wayList,
+        geomList,
+        linkNum,
+        nodeNum,
+        wayNum,
+        geomNum
+    );
 
     bool* validNode = (bool*)calloc(nodeNum, sizeof(bool));
     bool* validPathNode = (bool*)calloc(nodeNum, sizeof(bool));
@@ -835,13 +846,20 @@ int main(int argc, char* argv[]) {
                                  if(keyOfMenu==4){
                                     isFirst=true;
                                 }
-                                keyOfMenu=-1;
+                                // keyOfMenu=-1;
+                                n=0;
+                                oid[0]=-1;
+                                oid[1]=-1;
+                                memset(text4, 0, sizeof(text4));
                                 
                                 SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
                                 SDL_RenderClear(renderer);
                                 // initSDL(nodeNum, graphicPoints, adjList, rawNodeList,geomList,geomNum, bounding, validNode);
                                 initSDL(nodeNum, graphicPoints, adjList, rawNodeList,bounding, validNode);
-                                printMenu();
+                                printTextSize(1210,50,35,"Edit Link",35);
+                                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+                                SDL_RenderDrawRect(renderer,textBox);
+                                // printMenu();
                                 SDL_RenderPresent(renderer);
                             }
                             break;
@@ -1066,26 +1084,7 @@ int main(int argc, char* argv[]) {
                             //================================================================================================================
                         }
                         else if(keyOfMenu==4){
-                        // printf("%s%s%s%s\n",text4[0],text4[1],text4[2],text4[3]);
-
-                            // if(text4[0]!='\0'){
-                                // printTextSize(1220,100,20,text4,30);
-
-                            // }
-                            // #include <stdio.h>
-
-                            // int main() {
-                            //     char input_str[] = "1 102.3";
-                            //     int integer_value;
-                            //     double double_value;
-
-                            //     sscanf(input_str, "%d %lf", &integer_value, &double_value);
-
-                            //     printf("整数: %d\n", integer_value);
-                            //     printf("浮点数: %lf\n", double_value);
-
-                            //     return 0;
-                            // }
+                        
 
                                 
                                 int mode=-1;
@@ -1093,20 +1092,35 @@ int main(int argc, char* argv[]) {
                                 int check=sscanf(text4, "%d %lf",&mode, &changeVal);
                                 // printf("整数: %d\n", mode);
                                 // printf("浮点数: %lf\n", changeVal);
-                                printf("%d\n",check);
+                                // printf("%d\n",check);
                                 if(check==2&&oid[0]!=-1&&oid[1]!=-1){
                                     printf("%d\noid[0]=%d/%d \n oid[1]=%d/%d\n",check,oid[0],find_key_by_value(pairs2, nodeNum, oid[0]),oid[1],find_key_by_value(pairs2, nodeNum, oid[1]));
                                     int linkId=findLink(oid[0], oid[1],rawEdgeList,linkNum);
                                     if (linkId!=-1){
-                                        editLinkVal(mode,rawEdgeList,changeVal,linkId);
-                                        printf("Edit Successfully! Try to restart and reload map file now.\n");
+                                        if(editLinkVal(mode,rawEdgeList,changeVal,linkId, pairs2,nodeNum)==0)
+                                        {
+                                            if(mode!=0){
+                                                
+                                             
+                                                printf("Edit Successfully! Try to restart and reload map file now.\n");
+                                            }
+                                        }else{
+                                            printf("bad mode number\n");
+                                        }
+                                            
+                                        
                                         // printf();
                                     }
                                     else{
                                         printf("No Related Link found\n");
                                     }
 
+                                }else{
+                                    printf("please click 2 points and enter 2 numbers spt by a space!");
                                 }
+                                // n=0;
+                                // oid[0]=-1;
+                                // oid[1]=-1;
                             // }else if ( key == SDLK_e){
                                 
                             // }
