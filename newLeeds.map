@@ -2343,6 +2343,7 @@
 <link id=-2143395351 node=247293217 node=-2450 way=236290813 length=29.855466 veg=0.000000 arch=0.000000 land=0.000000 POI=;/link>
 <link id=-2143395352 node=247958719 node=247958718 way=27776431 length=37.626051 veg=0.000000 arch=0.000000 land=0.000000 POI=;/link>
 <link id=-2143395348 node=57620252 node=985096754 way=236290815 length=32.710119 veg=0.000000 arch=1.060750 land=0.000000 POI=;/link>
+<link id=123 node=54070613 node=52905134 way=321 length=10.000000 veg=0.000000 arch=0.000000 land=0.000000 POI=1,;/link>
 <node id=-8847 lat=53.807817 lon=-1.562377 /node>
 <node id=-8849 lat=53.807866 lon=-1.562578 /node>
 <node id=-2560 lat=53.807613 lon=-1.554711 /node>

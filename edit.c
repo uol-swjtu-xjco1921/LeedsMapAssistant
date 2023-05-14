@@ -84,28 +84,33 @@ int editLinkVal(int mode, RawEdge* rawEdgeList, double changeVal, int linkId){
     return 0;
 }
 
-int addLink(RawEdge* rawEdgeForAdd,RawEdge* rawEdgeList, int addId, int addNodeId1, int addNodeId2, int addWay, double addLen, char* addPoi, bool* isAddLink){
+int addLink(RawEdge* rawEdgeForAdd, int addId, int addNodeId1, int addNodeId2, int addWay, double addLen, char* addPoi, bool* isAddLink,Pair* pairs2,int nodeNum){
     if(addId!=-1&&addWay!=-1&&addLen>=0){
         *isAddLink=true;
         rawEdgeForAdd->id=addId;
-        rawEdgeForAdd->node1=rawEdgeList[addNodeId1].node1;
-        rawEdgeForAdd->node2=rawEdgeList[addNodeId2].node2;
-        rawEdgeForAdd->newNode1=rawEdgeList[addNodeId1].newNode1;
-        rawEdgeForAdd->newNode2=rawEdgeList[addNodeId2].newNode2;
+        rawEdgeForAdd->node1=find_key_by_value(pairs2,nodeNum,addNodeId1);
+        rawEdgeForAdd->node2=find_key_by_value(pairs2,nodeNum,addNodeId2);
+        rawEdgeForAdd->newNode1=addNodeId1;
+        rawEdgeForAdd->newNode2=addNodeId2;
         rawEdgeForAdd->way=addWay;
         rawEdgeForAdd->len=addLen;
         rawEdgeForAdd->veg=0;
         rawEdgeForAdd->land=0;
         rawEdgeForAdd->arch=0;
-        rawEdgeForAdd->speed=0;
+        if(addLen>60){
+            rawEdgeForAdd->speed=30;
+        }else if(addLen>20){
+            rawEdgeForAdd->speed=20;
+        }else{
+            rawEdgeForAdd->speed=5;
+        }
+        
         
         
         char tmp[20]={};
         sprintf(tmp,"%s,;/link>",addPoi);
-        
         // printf("%s||%s\n",tmp,rawEdgeForAdd->poi);
 
-        // strcat(addPoi,",;/link>");
         strcpy(rawEdgeForAdd->poi,tmp);
         
         
@@ -117,7 +122,7 @@ int addLink(RawEdge* rawEdgeForAdd,RawEdge* rawEdgeList, int addId, int addNodeI
     return 0;
 }
 
-int writeEditedMap(char* newMapFileName,double* bounding, RawEdge* rawEdgeList, RawNode* rawNodeList, Way* wayList, Geom* geomList, int linkNum,int nodeNum,int wayNum, int geomNum){
+int writeEditedMap(char* newMapFileName,double* bounding, RawEdge* rawEdgeList, RawNode* rawNodeList, Way* wayList, Geom* geomList, int linkNum,int nodeNum,int wayNum, int geomNum,bool isAddLink, RawEdge*rawEdgeForAdd){
     FILE* fp=fopen(newMapFileName,"w");
     // write bounding tag
     // double minLat = bounding[0];
@@ -137,6 +142,46 @@ int writeEditedMap(char* newMapFileName,double* bounding, RawEdge* rawEdgeList, 
             rawEdgeList[i].arch,
             rawEdgeList[i].land,
             rawEdgeList[i].poi
+        );
+    }
+    if (isAddLink){
+        fprintf(fp,"<link id=%d node=%d node=%d way=%d length=%.6lf veg=%.6lf arch=%.6lf land=%.6lf POI=%s\n",
+            rawEdgeForAdd->id,
+            rawEdgeForAdd->node1,
+            rawEdgeForAdd->node2,
+            rawEdgeForAdd->way,
+            rawEdgeForAdd->len, 
+            rawEdgeForAdd->veg,
+            rawEdgeForAdd->arch,
+            rawEdgeForAdd->land,
+            rawEdgeForAdd->poi
+        );
+        FILE* fpLog=fopen("editLog.txt","a");
+        fprintf(fpLog,"Add a link:\n<link id=%d node=%d node=%d way=%d length=%.6lf veg=%.6lf arch=%.6lf land=%.6lf POI=%s\n",
+            rawEdgeForAdd->id,
+            rawEdgeForAdd->node1,
+            rawEdgeForAdd->node2,
+            rawEdgeForAdd->way,
+            rawEdgeForAdd->len, 
+            rawEdgeForAdd->veg,
+            rawEdgeForAdd->arch,
+            rawEdgeForAdd->land,
+            rawEdgeForAdd->poi
+        );
+        printf("Add a link:\n<link id=%d node=%d/%d node=%d/%d way=%d length=%.6lf veg=%.6lf arch=%.6lf land=%.6lf POI=%s\n",
+            rawEdgeForAdd->id,
+            rawEdgeForAdd->newNode1,
+            rawEdgeForAdd->node1,
+
+            rawEdgeForAdd->newNode2,
+            rawEdgeForAdd->node2,
+
+            rawEdgeForAdd->way,
+            rawEdgeForAdd->len, 
+            rawEdgeForAdd->veg,
+            rawEdgeForAdd->arch,
+            rawEdgeForAdd->land,
+            rawEdgeForAdd->poi
         );
     }
     // <node id=247958702 lat=53.803574 lon=-1.554796 /node>
@@ -163,6 +208,7 @@ int writeEditedMap(char* newMapFileName,double* bounding, RawEdge* rawEdgeList, 
         }
         fprintf(fp, " /geom>\n");
     }
+    // for(int i=)
     fclose(fp);
     return 0;
     

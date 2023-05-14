@@ -221,7 +221,7 @@ int showTaskPath(PathList* pathList, RawNode* rawNodeList, double *bounding,int 
         pathPoints[i].w = pathNodeSize;
         pathPoints[i].h = pathNodeSize;
         if (withinBounding(rawNodeList[pathList->path[i]].lon,rawNodeList[pathList->path[i]].lat,bounding)){
-            validPathNode[i]=true;
+            validPathNode[pathList->path[i]]=true;
         }
     }
     for(int i = 0; i < pathList->pathNum; i++){
@@ -244,32 +244,8 @@ int showTaskPath(PathList* pathList, RawNode* rawNodeList, double *bounding,int 
     return 0;
 }
 
-// int editLinkVal(int mode, RawEdge* rawEdgeList, double changeVal, int linkId){
-//     int i=linkId;
-//     switch (mode)
-//     {
-//         case 1:
-//         {
-//             rawEdgeList[i].speed=changeVal;
-//             break;
-//         }
-//         case 2:
-//         {
-//             rawEdgeList[i].arch=changeVal;
-//             break;
-//         }
-//         case 3:
-//         {
-//             rawEdgeList[i].veg=changeVal;
-//             break;
-//         }
-//         case 4:
-//         {
-//             rawEdgeList[i].land=changeVal;
-//             break;
-//         }
-//     }
-//     return 0;
+// int reload(){
+
 // }
 
 
@@ -351,6 +327,10 @@ int main(int argc, char* argv[]) {
     int totalPaths[500];
     int totalNum=0;
     PathList* totalPathList=(PathList*)malloc(sizeof(PathList));
+
+    PathList* addPathList=(PathList*)malloc(sizeof(PathList));
+    addPathList->pathNum=2;
+    addPathList->path=(int*)malloc(sizeof(int)*2);
     
     // totalPathList->path=(int*)malloc(500*sizeof(int));
 
@@ -769,7 +749,7 @@ int main(int argc, char* argv[]) {
                                 SDL_SetRenderDrawColor(renderer,0,0,0,255);
                                 SDL_RenderFillRect(renderer,&arr);
                                 SDL_RenderPresent(renderer);
-                                printf("At No.%d pos(id = %d): (%d, %d)\n",n,oid[n-1], graphicPoints[oid[n-1]].x, graphicPoints[oid[n-1]].y);
+                                printf("At No.%d pos(id = %d/%d): (%d, %d)\n",n,oid[n-1],find_key_by_value(pairs2,nodeNum,oid[n-1]), graphicPoints[oid[n-1]].x, graphicPoints[oid[n-1]].y);
                                 // sprintf(text3[0], "At No.%d pos(id = %d): (%d, %d)\n",n,oid[n-1], graphicPoints[oid[n-1]].x, graphicPoints[oid[n-1]].y);
                                 // SDL_RenderPresent(renderer);
 
@@ -845,7 +825,8 @@ int main(int argc, char* argv[]) {
                                         SDL_SetRenderDrawColor(renderer,0,0,0,255);
                                         SDL_RenderFillRect(renderer,&arr);
                                         SDL_RenderPresent(renderer);
-                                        printf("At No.%d pos(id = %d): (%d, %d)\n",n,oid[n-1], graphicPoints[oid[n-1]].x, graphicPoints[oid[n-1]].y);
+                                        printf("At No.%d pos(id = %d/%d): (%d, %d)\n",n,oid[n-1],find_key_by_value(pairs2,nodeNum,oid[n-1]), graphicPoints[oid[n-1]].x, graphicPoints[oid[n-1]].y);
+
                                         // sprintf(text3[0], "At No.%d pos(id = %d): (%d, %d)\n",n,oid[n-1], graphicPoints[oid[n-1]].x, graphicPoints[oid[n-1]].y);
                                         // SDL_RenderPresent(renderer);
 
@@ -985,7 +966,8 @@ int main(int argc, char* argv[]) {
                                         SDL_SetRenderDrawColor(renderer,0,0,0,255);
                                         SDL_RenderFillRect(renderer,&arr);
                                         SDL_RenderPresent(renderer);
-                                        printf("At No.%d pos(id = %d): (%d, %d)\n",n,oid[n-1], graphicPoints[oid[n-1]].x, graphicPoints[oid[n-1]].y);
+                                        printf("At No.%d pos(id = %d/%d): (%d, %d)\n",n,oid[n-1],find_key_by_value(pairs2,nodeNum,oid[n-1]), graphicPoints[oid[n-1]].x, graphicPoints[oid[n-1]].y);
+                                        
                                         // sprintf(text3[0], "At No.%d pos(id = %d): (%d, %d)\n",n,oid[n-1], graphicPoints[oid[n-1]].x, graphicPoints[oid[n-1]].y);
                                         // SDL_RenderPresent(renderer);
 
@@ -1138,7 +1120,7 @@ int main(int argc, char* argv[]) {
                         SDL_RenderDrawRect(renderer,textBox);
 
                         
-                        printf("ch0\n");
+                        // printf("ch0\n");
                         SDL_RenderPresent(renderer);
                         break;
                         // Add Link
@@ -1366,12 +1348,16 @@ int main(int argc, char* argv[]) {
                                 printf("poi= %s\n",addPoi);
 
                             if(check==4&&oid[0]!=-1&&oid[1]!=-1){
-                                printf("ch4\n");
-// int addLink(RawEdge* rawEdgeForAdd,RawEdge* rawEdgeList, int addId, int addNodeId1, int addNodeId2, int addWay, double addLen, char* addPoi, bool* isAddLink){
-
-                                addLink(rawEdgeForAdd,rawEdgeList, addId,oid[0],oid[1] ,addWay, addLen, addPoi, &isAddLink);
-
+                                addLink(rawEdgeForAdd, addId, oid[0], oid[1], addWay, addLen, addPoi, &isAddLink, pairs2, nodeNum);
+                                
+                                addPathList->path[0]=oid[0];
+                                addPathList->path[1]=oid[1];
+                                printf("ch1\n%d %d\n",addPathList->path[0],addPathList->path[1]);
+                                pathPoints = (SDL_Rect *)malloc(sizeof(SDL_Rect)*addPathList->pathNum);
+                                showTaskPath(addPathList,rawNodeList,bounding,pathNodeSize,validPathNode);
+                                printf("Add to temp area, please push 'ctrl' to save.\n");
                             }
+                            
                             //     // printf("%d\n",check);
                             //     if(check==2&&oid[0]!=-1&&oid[1]!=-1){
                             //         // printf("%d\noid[0]=%d/%d \n oid[1]=%d/%d\n",check,oid[0],find_key_by_value(pairs2, nodeNum, oid[0]),oid[1],find_key_by_value(pairs2, nodeNum, oid[1]));
@@ -1401,6 +1387,8 @@ int main(int argc, char* argv[]) {
                                 n=0;
                                 oid[0]=-1;
                                 oid[1]=-1;
+                                memset(text6,0,sizeof(text6));
+                                
                                 // rawEdgeForAdd[0].id=0;
                                 // rawEdgeForAdd[0].len=0;
                                 // raw
@@ -1414,9 +1402,9 @@ int main(int argc, char* argv[]) {
                     }
                     else if(key == SDLK_LCTRL){
                         // Menu 4 only
-                        if (keyOfMenu==4){
+                        if (keyOfMenu==4||keyOfMenu==6){
                             char newMapFileName[40]={0};
-                            sprintf(newMapFileName,"newLeeds%d.map",newMapNum);
+                            sprintf(newMapFileName,"newLeeds.map");
 
                             writeEditedMap(
                                 newMapFileName,
@@ -1428,7 +1416,9 @@ int main(int argc, char* argv[]) {
                                 linkNum,
                                 nodeNum,
                                 wayNum,
-                                geomNum
+                                geomNum,
+                                isAddLink,
+                                rawEdgeForAdd
                             );
 
                             newMapNum++;
