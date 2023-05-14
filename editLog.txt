@@ -1,5 +1,1 @@
-link[346/54060488].veg from 0.000 to 120.000
-link[346/54060488].veg from 120.000 to 101.000
-link[346/54060488].veg from 101.000 to 1234.000
-link[101/-2402].veg from 85.738 to 123.000
 clear editLog.txt

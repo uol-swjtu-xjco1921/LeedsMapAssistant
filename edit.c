@@ -1,8 +1,27 @@
 #include "edit.h"
 
-int editLinkVal(int mode, RawEdge* rawEdgeList, double changeVal, int linkId, Pair* pairs2, int nodeNum){
+int searchNode(int mode, RawNode* rawNodeList, double a, double b, int *nodeId, Pair* pairs,int nodeNum){
+    if(mode==1){
+        for(int i=0; i<nodeNum;i++){
+            if( fabs(rawNodeList[i].lon-a)<1e-6 && fabs(rawNodeList[i].lat-b)<1e-6 ){
+                *nodeId=rawNodeList[i].newId;
+                return 0; 
+            }
+        }      
+    }else if(mode==2&& a<1e-6){
+        *nodeId=find_value_by_key(pairs, nodeNum, (int)round(b));
+        return 0;
+    }else{
+        fprintf(stderr,"Bad argument input!\n");
+        return -10;
+    }
+    return 0;
+}
+
+int editLinkVal(int mode, RawEdge* rawEdgeList, double changeVal, int linkId){
     if (!(mode==1||mode==2||mode==3||mode==4||mode==5||mode==0)){
-        return -9;
+        fprintf(stderr, "Bad argument input!\n");
+        return -10;
     }
     // FILE* fp=fopen("editLog.txt","a");
     int i=linkId;
@@ -18,8 +37,8 @@ int editLinkVal(int mode, RawEdge* rawEdgeList, double changeVal, int linkId, Pa
         case 1:
         {   
             FILE* fp=fopen("editLog.txt","a");
-            printf("link[%d/%d].veg from %.3lf to %.3lf\n",i,find_key_by_value(pairs2,nodeNum,i),rawEdgeList[i].veg, changeVal);
-            fprintf(fp,"link[%d/%d].veg from %.3lf to %.3lf\n",i,find_key_by_value(pairs2,nodeNum,i),rawEdgeList[i].veg, changeVal);
+            printf("link[%d](%d/%d<->%d/%d).veg from %.3lf to %.3lf\n",rawEdgeList[i].id,rawEdgeList[i].node1,rawEdgeList[i].newNode1,rawEdgeList[i].node2,rawEdgeList[i].newNode2,rawEdgeList[i].veg, changeVal);
+            fprintf(fp,"link[%d](%d/%d<->%d/%d).veg from %.3lf to %.3lf\n",rawEdgeList[i].id,rawEdgeList[i].node1,rawEdgeList[i].newNode1,rawEdgeList[i].node2,rawEdgeList[i].newNode2,rawEdgeList[i].veg, changeVal);
             rawEdgeList[i].veg=changeVal;  
             fclose(fp);
             break;
@@ -27,8 +46,8 @@ int editLinkVal(int mode, RawEdge* rawEdgeList, double changeVal, int linkId, Pa
         case 2:
         {
             FILE* fp=fopen("editLog.txt","a");
-            printf("link[%d/%d].arch from %.3lf to %.3lf\n",i,find_key_by_value(pairs2,nodeNum,i),rawEdgeList[i].arch, changeVal);
-            fprintf(fp,"link[%d/%d].arch from %.3lf to %.3lf\n",i,find_key_by_value(pairs2,nodeNum,i),rawEdgeList[i].arch, changeVal);
+            printf("link[%d](%d/%d<->%d/%d).arch from %.3lf to %.3lf\n",rawEdgeList[i].id,rawEdgeList[i].node1,rawEdgeList[i].newNode1,rawEdgeList[i].node2,rawEdgeList[i].newNode2,rawEdgeList[i].arch, changeVal);
+            fprintf(fp,"link[%d](%d/%d<->%d/%d).arch from %.3lf to %.3lf\n",rawEdgeList[i].id,rawEdgeList[i].node1,rawEdgeList[i].newNode1,rawEdgeList[i].node2,rawEdgeList[i].newNode2,rawEdgeList[i].arch, changeVal);
             rawEdgeList[i].arch=changeVal;
             fclose(fp);
             break;
@@ -36,8 +55,8 @@ int editLinkVal(int mode, RawEdge* rawEdgeList, double changeVal, int linkId, Pa
         case 3:
         {
             FILE* fp=fopen("editLog.txt","a");
-            printf("link[%d/%d].land from %.3lf to %.3lf\n",i,find_key_by_value(pairs2,nodeNum,i),rawEdgeList[i].land, changeVal);
-            fprintf(fp,"link[%d/%d].land from %.3lf to %.3lf\n",i,find_key_by_value(pairs2,nodeNum,i),rawEdgeList[i].land, changeVal);
+            printf("link[%d](%d/%d<->%d/%d).land from %.3lf to %.3lf\n",rawEdgeList[i].id,rawEdgeList[i].node1,rawEdgeList[i].newNode1,rawEdgeList[i].node2,rawEdgeList[i].newNode2,rawEdgeList[i].land, changeVal);
+            fprintf(fp,"link[%d](%d/%d<->%d/%d).land from %.3lf to %.3lf\n",rawEdgeList[i].id,rawEdgeList[i].node1,rawEdgeList[i].newNode1,rawEdgeList[i].node2,rawEdgeList[i].newNode2,rawEdgeList[i].land, changeVal);
             rawEdgeList[i].land=changeVal;
             fclose(fp);
             break;
@@ -45,8 +64,8 @@ int editLinkVal(int mode, RawEdge* rawEdgeList, double changeVal, int linkId, Pa
         case 4:
         {
             FILE* fp=fopen("editLog.txt","a");
-            printf("link[%d/%d].speed from %.3lf to %.3lf\n",i,find_key_by_value(pairs2,nodeNum,i),rawEdgeList[i].speed, changeVal);
-            fprintf(fp,"link[%d/%d].speed from %.3lf to %.3lf\n",i,find_key_by_value(pairs2,nodeNum,i),rawEdgeList[i].speed, changeVal);
+            printf("link[%d](%d/%d<->%d/%d).speed from %.3lf to %.3lf\n",rawEdgeList[i].id,rawEdgeList[i].node1,rawEdgeList[i].newNode1,rawEdgeList[i].node2,rawEdgeList[i].newNode2,rawEdgeList[i].speed, changeVal);
+            fprintf(fp,"link[%d](%d/%d<->%d/%d).speed from %.3lf to %.3lf\n",rawEdgeList[i].id,rawEdgeList[i].node1,rawEdgeList[i].newNode1,rawEdgeList[i].node2,rawEdgeList[i].newNode2,rawEdgeList[i].speed, changeVal);
             rawEdgeList[i].speed=changeVal;
             fclose(fp);
             break;
@@ -54,8 +73,8 @@ int editLinkVal(int mode, RawEdge* rawEdgeList, double changeVal, int linkId, Pa
         case 5:
         {   
             FILE* fp=fopen("editLog.txt","a");
-            printf("link[%d/%d].len from %.3lf to %.3lf\n",i,find_key_by_value(pairs2,nodeNum,i),rawEdgeList[i].len, changeVal);
-            fprintf(fp,"link[%d/%d].len from %.3lf to %.3lf\n",i,find_key_by_value(pairs2,nodeNum,i),rawEdgeList[i].len, changeVal);
+            printf("link[%d](%d/%d<->%d/%d).len from %.3lf to %.3lf\n",rawEdgeList[i].id,rawEdgeList[i].node1,rawEdgeList[i].newNode1,rawEdgeList[i].node2,rawEdgeList[i].newNode2,rawEdgeList[i].len, changeVal);
+            fprintf(fp,"link[%d](%d/%d<->%d/%d).len from %.3lf to %.3lf\n",rawEdgeList[i].id,rawEdgeList[i].node1,rawEdgeList[i].newNode1,rawEdgeList[i].node2,rawEdgeList[i].newNode2,rawEdgeList[i].len, changeVal);
             rawEdgeList[i].len=changeVal;
             fclose(fp);
             break;

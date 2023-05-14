@@ -13,6 +13,7 @@
 #include "routePlan.h"
 #include "visualize.h"
 
-int editLinkVal(int mode, RawEdge* rawEdgeList, double changeVal, int linkId, Pair* pairs2, int nodeNum);
+int searchNode(int mode, RawNode* rawNodeList, double a, double b, int *nodeId, Pair* pairs,int nodeNum);
+int editLinkVal(int mode, RawEdge* rawEdgeList, double changeVal, int linkId);
 int writeEditedMap(char* newMapFileName,double* bounding, RawEdge* rawEdgeList, RawNode* rawNodeList, Way* wayList, Geom* geomList, int linkNum,int nodeNum,int wayNum, int geomNum);
 #endif

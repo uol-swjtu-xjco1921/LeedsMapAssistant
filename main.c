@@ -65,7 +65,7 @@ void printMenu(){
     printTextSize(1240, 220, 30, "2.Min Time",30);
     printTextSize(1240, 320, 30, "3.Pass Ordered Nodes",30);
     printTextSize(1240, 420, 30, "4.Edit Link",30);
-    printTextSize(1240, 520, 30, "5.Info of Link",30);
+    printTextSize(1240, 520, 30, "5.Search Node",30);
     // printText(1300, 300, 20, "3.Pass Certain Nodes");
     // SDL_RenderPresent(renderer);
     
@@ -122,8 +122,10 @@ int findNearestNode(RawNode *rawNodeList, int nodeNum, double xPos, double yPos,
 int findLink(int start, int end, RawEdge* rawEdgeList,int linkNum){
     for(int i=0;i<linkNum;i++){
         
-        if((rawEdgeList[i].newNode1==start&&rawEdgeList[i].newNode2==end)
-        ||(rawEdgeList[i].newNode2==start&&rawEdgeList[i].newNode1==end)){
+        if(
+            (rawEdgeList[i].newNode1==start&&rawEdgeList[i].newNode2==end)
+            ||(rawEdgeList[i].newNode2==start&&rawEdgeList[i].newNode1==end)
+          ){
             return i;
         }
     }
@@ -370,18 +372,18 @@ int main(int argc, char* argv[]) {
     
     graphicPoints = (SDL_Rect *)malloc(sizeof(SDL_Rect) * nodeNum);
     
-    writeEditedMap(
-        "newLeeds.map",
-        bounding,
-        rawEdgeList,
-        rawNodeList,
-        wayList,
-        geomList,
-        linkNum,
-        nodeNum,
-        wayNum,
-        geomNum
-    );
+    // writeEditedMap(
+    //     "newLeeds.map",
+    //     bounding,
+    //     rawEdgeList,
+    //     rawNodeList,
+    //     wayList,
+    //     geomList,
+    //     linkNum,
+    //     nodeNum,
+    //     wayNum,
+    //     geomNum
+    // );
 
     bool* validNode = (bool*)calloc(nodeNum, sizeof(bool));
     bool* validPathNode = (bool*)calloc(nodeNum, sizeof(bool));
@@ -407,13 +409,15 @@ int main(int argc, char* argv[]) {
     
 
     
+    SDL_Event ev;
 
     textBox = (SDL_Rect *)malloc(sizeof(SDL_Rect));
     textBox->h=100;
     textBox->w=360;
     textBox->x=1220;
     textBox->y=100;
-    SDL_Event ev;
+
+    
     int nid[2]={-1,-1};
     
     char strArr[2][10] = {"start", "end"};
@@ -429,9 +433,12 @@ int main(int argc, char* argv[]) {
     bool stopSelect=false;
     double tmpDist3=0;
     char text4[50]={};
+    char text5[50]={};
     // char text4cp[50]={};
     // int textPos=-1;
     bool isFirst=true;
+    int newMapNum=1;
+    bool clearByRight=false;
     
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
@@ -845,6 +852,7 @@ int main(int argc, char* argv[]) {
                             }else if(ev.button.button==SDL_BUTTON_RIGHT){
                                  if(keyOfMenu==4){
                                     isFirst=true;
+                                    clearByRight=true;
                                 }
                                 // keyOfMenu=-1;
                                 n=0;
@@ -861,6 +869,85 @@ int main(int argc, char* argv[]) {
                                 SDL_RenderDrawRect(renderer,textBox);
                                 // printMenu();
                                 SDL_RenderPresent(renderer);
+                            }
+                            break;
+                        }
+                        case 5:
+                        {
+                            if(ev.button.button == SDL_BUTTON_LEFT){
+                                SDL_Point pos={ev.button.x, ev.button.y};
+                                
+                                if(SDL_PointInRect(&pos, textBox)){
+                                    SDL_StartTextInput();
+                                }else{
+                                    SDL_StopTextInput();
+                                    // SDL_Rect arr;
+                                    // int x = ev.button.x;
+                                    // int y = ev.button.y;
+                                    // n=n+1;
+                                    // printf("click point pos: (%d ,%d)\n", x,y);
+                                    // oid[n-1]=findNearestNode(rawNodeList,nodeNum,x,y,bounding);
+                                    
+                                    // if(oid[n-1]!=-1&&validNode[oid[n-1]])
+                                    // {
+                                    //     arr.w = pathNodeSize;
+                                    //     arr.h = pathNodeSize;
+                                    //     arr.x = graphicPoints[oid[n-1]].x;
+                                    //     arr.y = graphicPoints[oid[n-1]].y;
+                                    //     SDL_RenderDrawRect(renderer,&arr);
+                                    //     SDL_SetRenderDrawColor(renderer,0,0,0,255);
+                                    //     SDL_RenderFillRect(renderer,&arr);
+                                    //     SDL_RenderPresent(renderer);
+                                    //     printf("At No.%d pos(id = %d): (%d, %d)\n",n,oid[n-1], graphicPoints[oid[n-1]].x, graphicPoints[oid[n-1]].y);
+                                    //     // sprintf(text3[0], "At No.%d pos(id = %d): (%d, %d)\n",n,oid[n-1], graphicPoints[oid[n-1]].x, graphicPoints[oid[n-1]].y);
+                                    //     // SDL_RenderPresent(renderer);
+
+                                        
+                                    // }else{
+                                    //     printf("related point: None, skip and continue selecting No.%d \n",n);
+                                        
+                                    //     sprintf(text3[1],"related point: None, skip and continue selecting No.%d \n",n);
+                                    //     n=n-1;
+                                    // }
+
+                                }
+                            }else if(ev.button.button==SDL_BUTTON_RIGHT){
+                                 if(keyOfMenu==5){
+                                    isFirst=true;
+                                    clearByRight=true;
+                                }
+                                // keyOfMenu=-1;
+                                n=0;
+                                oid[0]=-1;
+                                oid[1]=-1;
+                                memset(text5, 0, sizeof(text5));
+                                
+                                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                                SDL_RenderClear(renderer);
+                                // initSDL(nodeNum, graphicPoints, adjList, rawNodeList,geomList,geomNum, bounding, validNode);
+                                initSDL(nodeNum, graphicPoints, adjList, rawNodeList,bounding, validNode);
+                                printTextSize(1210,50,35,"Search Node",35);
+                                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+                                SDL_RenderDrawRect(renderer,textBox);
+                                // printMenu();
+                                SDL_RenderPresent(renderer);
+
+
+                                // // ====================================
+                                // // SDL_RenderClear(renderer);
+                                // //初始化
+                                // SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                                // SDL_RenderClear(renderer);
+                                // // initSDL(nodeNum, graphicPoints, adjList, rawNodeList,geomList,geomNum, bounding, validNode);
+                                // initSDL(nodeNum, graphicPoints, adjList, rawNodeList, bounding, validNode);
+                                // printTextSize(1210,50,40,"Planning for Min Time",35);
+                                
+                                // h_tmp=300;
+                                // SDL_RenderPresent(renderer);
+                                // n=0;
+                                // isPrint=false;
+                                // // canClear=0;
+                                
                             }
                             break;
                         }
@@ -900,7 +987,7 @@ int main(int argc, char* argv[]) {
                         initSDL(nodeNum, graphicPoints, adjList, rawNodeList, bounding, validNode);
                         
 
-                        keyOfMenu=2;
+                        
                         printTextSize(1210,50,40,"Planning for Min Time",35);
 
                         SDL_RenderPresent(renderer);
@@ -947,9 +1034,24 @@ int main(int argc, char* argv[]) {
                     }
                     else if(key == SDLK_5&&keyOfMenu==-1)
                     {   
+                        
                         keyOfMenu=5;
+                        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
-                        // add attribute (speed）
+                        SDL_RenderClear(renderer);
+                        SDL_RenderPresent(renderer);
+                         //初始化
+                         // initSDL(nodeNum, graphicPoints, adjList, rawNodeList,geomList,geomNum, bounding, validNode);
+                        initSDL(nodeNum, graphicPoints, adjList, rawNodeList, bounding, validNode);
+                        
+
+                        
+                        printTextSize(1210,50,40,"Search Node",35);
+                        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+                        SDL_RenderDrawRect(renderer,textBox);
+                        SDL_RenderPresent(renderer);
+                        // search node
+                        
                         break;  
                     }
                     else if(key == SDLK_6&&keyOfMenu==-1)
@@ -958,7 +1060,7 @@ int main(int argc, char* argv[]) {
 
                         // edit exist attribute
                     }else if(key == SDLK_ESCAPE){
-                        if(keyOfMenu==4){
+                        if(keyOfMenu==4||keyOfMenu==5){
                             isFirst=true;
                         }
                         keyOfMenu=-1;
@@ -1084,9 +1186,7 @@ int main(int argc, char* argv[]) {
                             //================================================================================================================
                         }
                         else if(keyOfMenu==4){
-                        
-
-                                
+                                                   
                                 int mode=-1;
                                 double changeVal=0;
                                 int check=sscanf(text4, "%d %lf",&mode, &changeVal);
@@ -1094,14 +1194,14 @@ int main(int argc, char* argv[]) {
                                 // printf("浮点数: %lf\n", changeVal);
                                 // printf("%d\n",check);
                                 if(check==2&&oid[0]!=-1&&oid[1]!=-1){
-                                    printf("%d\noid[0]=%d/%d \n oid[1]=%d/%d\n",check,oid[0],find_key_by_value(pairs2, nodeNum, oid[0]),oid[1],find_key_by_value(pairs2, nodeNum, oid[1]));
+                                    // printf("%d\noid[0]=%d/%d \n oid[1]=%d/%d\n",check,oid[0],find_key_by_value(pairs2, nodeNum, oid[0]),oid[1],find_key_by_value(pairs2, nodeNum, oid[1]));
                                     int linkId=findLink(oid[0], oid[1],rawEdgeList,linkNum);
                                     if (linkId!=-1){
-                                        if(editLinkVal(mode,rawEdgeList,changeVal,linkId, pairs2,nodeNum)==0)
+                                        if(editLinkVal(mode,rawEdgeList,changeVal,linkId)==0)
                                         {
                                             if(mode!=0){
                                                 
-                                             
+                                                
                                                 printf("Edit Successfully! Try to restart and reload map file now.\n");
                                             }
                                         }else{
@@ -1127,9 +1227,75 @@ int main(int argc, char* argv[]) {
                             
 
                             // SDL_RenderPresent(renderer);
+                        }else if(keyOfMenu==5){
+                            int mode=-1;
+                            double a=-1, b=-1;
+                            int nodeId=-1;
+                            int checkSearch=-1; 
+                            int check=sscanf(text5, "%d %lf %lf", &mode, &a, &b);
+                            printf("%d %lf %lf\n", mode, a, b);
+                            if (check==3){
+                                
+                                if (mode==1 || mode==2){
+                                    // mode1: a=lon, b=lat
+                                    // mode2: a=0, b= rawId
+                                    
+
+                                    checkSearch=searchNode(mode,rawNodeList,a,b,&nodeId,pairs,nodeNum);
+                                    printf("%d",checkSearch);
+                                }else{
+                                    fprintf(stderr,"Bad argument input!\n");
+                                    
+                                }
+                            }else{
+                                fprintf(stderr,"Bad argument!\n");
+                                
+                            }
+                            
+                            if(nodeId!=-1&&checkSearch==0){
+                                
+
+                                SDL_Rect arr5;
+                                arr5.w = pathNodeSize;
+                                arr5.h = pathNodeSize;
+                                arr5.x = graphicPoints[nodeId].x;
+                                arr5.y = graphicPoints[nodeId].y;
+                                SDL_RenderDrawRect(renderer,&arr5);
+                                SDL_SetRenderDrawColor(renderer,0,0,0,255);
+                                SDL_RenderFillRect(renderer,&arr5);
+                                SDL_RenderPresent(renderer);
+                                printf("At pos(id = %d / %d): (%d, %d)\n",
+                                        nodeId,find_key_by_value(pairs2, nodeNum, nodeId), 
+                                        graphicPoints[nodeId].x, 
+                                        graphicPoints[nodeId].y);
+
+                            }
+
+                           
                         }
                     }
+                    else if(key == SDLK_LCTRL){
+                        // Menu 4 only
+                        if (keyOfMenu==4){
+                            char newMapFileName[40]={0};
+                            sprintf(newMapFileName,"newLeeds%d.map",newMapNum);
 
+                            writeEditedMap(
+                                newMapFileName,
+                                bounding,
+                                rawEdgeList,
+                                rawNodeList,
+                                wayList,
+                                geomList,
+                                linkNum,
+                                nodeNum,
+                                wayNum,
+                                geomNum
+                            );
+
+                            newMapNum++;
+                        }
+                    }
                     
 
                     break;
@@ -1166,14 +1332,14 @@ int main(int argc, char* argv[]) {
                 case SDL_TEXTINPUT:
                 {   
                     if(keyOfMenu==4){
-                        if ((strcmp(ev.text.text, "4") == 0)&& (isFirst)){
+                        if (((strcmp(ev.text.text, "4") == 0||clearByRight))&& (isFirst)){
                             isFirst=false;
                             memset(text4, 0, sizeof(text4));
                         }
                         else
                         {
                             strcat(text4, ev.text.text);
-                            printTextSize(1220,100,20,text4,30);
+                            printTextSize(1220,100,30,text4,30);
                             printf("%s\n",text4);
                             SDL_RenderPresent(renderer);
                         }
@@ -1184,6 +1350,18 @@ int main(int argc, char* argv[]) {
                         
                         
                         
+                    }else if(keyOfMenu==5){
+                        if (((strcmp(ev.text.text, "5")||clearByRight) == 0)&& (isFirst)){
+                            isFirst=false;
+                            memset(text5, 0, sizeof(text5));
+                        }
+                        else
+                        {
+                            strcat(text5, ev.text.text);
+                            printTextSize(1220,100,25,text5,25);
+                            printf("%s\n",text5);
+                            SDL_RenderPresent(renderer);
+                        }
                     }
                     
                     break;
