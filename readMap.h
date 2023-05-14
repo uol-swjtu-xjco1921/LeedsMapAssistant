@@ -69,11 +69,12 @@ int getRawLink(char* mapFileName, RawEdge* rawEdgeList, int edgeNum, Pair* pairs
 int getRawBound(char* mapFileName, double *bounding);
 int getWayEachNodeNum(char* mapFileName, Way* wayList);
 int getRawWay(char* mapFileName, Way* wayList, int wayNum, Pair* pairs,int nodeNum);
-
+int getGeomEachNodeNum(char* mapFileName, Geom* geomList);
+int getRawGeom(char* mapFileName, Geom* geomList, int geomNum, Pair* pairs,int nodeNum);
 
 // for debugging
 void printRawEdgeList(RawEdge* rawEdgeList, int numEdges);
 void printRawNodeList(RawNode* rawNodeList, int numNodes);
 void printPairs(Pair* pairs, int numNodes);
-
+void printRawWayList(Way* wayList, int wayNum);
 #endif

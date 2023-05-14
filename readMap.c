@@ -92,6 +92,7 @@ int getWayEachNodeNum(char* mapFileName, Way* wayList){
 
             }
             wayList[i].nodeNum--;
+            wayList[i].nodeNum--;
             // printf("!!\n");
             i++;
         }
@@ -152,6 +153,84 @@ int getRawGeomNum(char* mapFileName){
     return geomNum;
 }
 
+int getGeomEachNodeNum(char* mapFileName, Geom* geomList){
+    FILE* fp=fopen(mapFileName,"r");
+    char str[1000];
+    int i=0;
+    while (fgets(str, sizeof(str), fp)) {
+        // get newline without "\n" from the buffer string 
+        char *p = str;
+        char *q = str;
+        while (*p != '\0') {
+            if (*p != '\n') {
+                *q++ = *p;
+            }
+            p++;
+        }
+        *q = '\0';
+
+        
+        if(strncmp(str, "<geom", 5) == 0) {
+            geomList[i].nodeNum=0;
+            char* token=strtok(str," ");
+            token=strtok(NULL, " ");
+            while(token!=NULL){
+                token=strtok(NULL," ");
+                geomList[i].nodeNum++;
+                if(i==0)
+                    printf("nodeid= %d\n",geomList[i].nodeNum);
+
+            }
+            geomList[i].nodeNum--;
+            geomList[i].nodeNum--;
+            
+
+            // printf("!!\n");
+            i++;
+        }
+        
+    }
+    return 0;
+}
+
+int getRawGeom(char* mapFileName, Geom* geomList, int geomNum, Pair* pairs,int nodeNum){
+    for(int j=0;j<geomNum;j++){
+        geomList[j].nodeList=(int*)malloc(sizeof(int)*geomList[j].nodeNum);
+        geomList[j].newNodeList=(int*)malloc(sizeof(int)*geomList[j].nodeNum);
+    } 
+    FILE* fp=fopen(mapFileName,"r");
+    char str[1000];
+    int i=0;
+    while (fgets(str, sizeof(str), fp)) {
+        // get newline without "\n" from the buffer string 
+        char *p = str;
+        char *q = str;
+        while (*p != '\0') {
+            if (*p != '\n') {
+                *q++ = *p;
+            }
+            p++;
+        }
+        *q = '\0';
+
+        
+        if(strncmp(str, "<geom", 5) == 0) {
+            char* token=strtok(str," ");
+            token=strtok(NULL, " ");
+            sscanf(token, "id=%d",&geomList[i].id);
+
+            int j=0;
+            while(j<geomList[i].nodeNum){
+                token=strtok(NULL, " ");
+                sscanf(token,"node=%d",&geomList[i].nodeList[j]);
+                geomList[i].newNodeList[j]=find_value_by_key(pairs,nodeNum,geomList[i].nodeList[j]);
+                j++;
+            }
+            i++;
+        }
+    }
+    return 0;
+}
 
 int compare_pair_key(const void *a, const void *b) {
     Pair *p1 = (Pair *)a;
@@ -362,8 +441,8 @@ void printRawEdgeList(RawEdge* rawEdgeList, int numEdges) {
 
 void printRawWayList(Way* wayList, int wayNum) {
     for (int i = 0; i < wayNum; i++) {
-        printf("id: %d",
-        wayList[i].id);
+        printf("id: %d num=%d",
+        wayList[i].id, wayList[i].nodeNum);
         for(int j=0;j<wayList[i].nodeNum;j++){
             printf("node%d=%d/%d ",j+1,wayList[i].newNodeList[j],wayList[i].nodeList[j]);
 

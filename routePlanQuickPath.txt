@@ -1,2 +1,2 @@
-The Quickest Path from start pos (id = 159/1160269580) to end pos (id = 156/1643830811) is: 
-159->158->157->156
+The Quickest Path from start pos (id = 154/27081300) to end pos (id = 138/26653396) is: 
+154->153->152->140->139->138

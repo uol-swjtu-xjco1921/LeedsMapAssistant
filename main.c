@@ -64,7 +64,7 @@ void printMenu(){
     printTextSize(1240, 120, 30, "1.Min Distance",30);
     printTextSize(1240, 220, 30, "2.Min Time",30);
     printTextSize(1240, 320, 30, "3.Pass Ordered Nodes",30);
-    printTextSize(1240, 420, 30, "4.Edit Node",30);
+    printTextSize(1240, 420, 30, "4.Edit Link",30);
     printTextSize(1240, 520, 30, "5.Info of Link",30);
     // printText(1300, 300, 20, "3.Pass Certain Nodes");
     // SDL_RenderPresent(renderer);
@@ -130,7 +130,8 @@ int findLink(int start, int end, RawEdge* rawEdgeList,int linkNum){
     return -1;
 }
 
-void initSDL(int nodeNum, SDL_Rect* graphicPoints, AdjList* adjList,RawNode* rawNodeList,double* bounding, bool* validNode)    
+// void initSDL(int nodeNum, SDL_Rect* graphicPoints, AdjList* adjList,RawNode* rawNodeList, Geom* geomList,int geomNum, double* bounding, bool* validNode)    
+void initSDL(int nodeNum, SDL_Rect* graphicPoints, AdjList* adjList,RawNode* rawNodeList, double* bounding, bool* validNode)       
    { 
     double minLat = bounding[0];
     double minLon = bounding[1];
@@ -164,7 +165,39 @@ void initSDL(int nodeNum, SDL_Rect* graphicPoints, AdjList* adjList,RawNode* raw
         }
         // puts("");
     }
-    
+
+    // for(int i=0; i<geomNum;i++){
+    //     printf("check i=%d   %d\n",i,geomList[i].nodeNum);
+    //     for(int j=0; j<geomList[i].nodeNum;j++)
+    //     {   
+    //         int end=j+1;
+    //         printf("geomList[i].newNodeList[end=%d]=%d\n",end,geomList[i].newNodeList[end]);
+    //         printf("id=%d/%d\n",geomList[i].newNodeList[j],geomList[i].nodeList[j]);
+    //         // if(j==geomList[i].nodeNum-1){
+    //         //     end=0;
+    //         // }else{
+    //         //     end=j+1;
+    //         // }
+    //         if(validNode[geomList[i].newNodeList[j]]&&validNode[geomList[i].newNodeList[end]])
+    //         {       
+    //                 SDL_SetRenderDrawColor(renderer, 255, 20, 0, 50);
+
+    //                 SDL_RenderDrawLine(renderer,
+    //                 calXRelativePos(rawNodeList[geomList[i].newNodeList[j]].lon,minLon,maxLon)* MAP_X_SIZE , 
+    //                 (1 - calYRelativePos(rawNodeList[geomList[i].newNodeList[j]].lat,minLat,maxLat)) * Y_SIZE ,  
+    //                 calXRelativePos(rawNodeList[geomList[i].newNodeList[end]].lon,minLon,maxLon) * MAP_X_SIZE , 
+    //             (1 - calYRelativePos(rawNodeList[geomList[i].newNodeList[end]].lat,minLat,maxLat)) * Y_SIZE 
+    //                 );
+                
+    //             printf("%d\n",end);
+    //         }
+    //     }
+
+    // }
+    // SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+
+
+
     // printMenu();
     
     
@@ -275,10 +308,8 @@ int main(int argc, char* argv[]) {
 
     AdjList* adjList = initAdjList(nodeNum);
     AdjList* adjListTime = initAdjList(nodeNum);
-    Way*  wayList=(Way*)malloc(sizeof(Way)*wayNum);
-    getWayEachNodeNum(mapFileName,wayList);
-    getRawWay(mapFileName,wayList,wayNum,pairs,nodeNum);
-    // Geom* geomList=(Geom*)malloc(sizeof(Geom)*geomNum);
+
+
 
     RawNode* rawNodeList=(RawNode*)malloc(nodeNum*sizeof(RawNode));
     
@@ -286,6 +317,13 @@ int main(int argc, char* argv[]) {
 
     qsort(pairs, nodeNum, sizeof(Pair), compare_pair_key);
 
+    Way*  wayList=(Way*)malloc(sizeof(Way)*wayNum);
+    getWayEachNodeNum(mapFileName,wayList);
+    getRawWay(mapFileName,wayList,wayNum,pairs,nodeNum);
+    printRawWayList(wayList, wayNum);
+    Geom* geomList=(Geom*)malloc(sizeof(Geom)*geomNum);
+    getGeomEachNodeNum(mapFileName,geomList);
+    getRawGeom(mapFileName,geomList,geomNum,pairs2,nodeNum);
 
     RawEdge* rawEdgeList=(RawEdge*)malloc(linkNum*sizeof(RawEdge));
     getRawLink(mapFileName, rawEdgeList, linkNum, pairs, nodeNum);
@@ -387,6 +425,7 @@ int main(int argc, char* argv[]) {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
     //初始化
+    // initSDL(nodeNum, graphicPoints, adjList, rawNodeList, geomList,geomNum, bounding, validNode);
     initSDL(nodeNum, graphicPoints, adjList, rawNodeList, bounding, validNode);
     printMenu();
     SDL_RenderPresent(renderer);
@@ -446,7 +485,7 @@ int main(int argc, char* argv[]) {
                                 
                                 if(dist[nid[n]]>1e10){
                                     printf("no link or way !!!\n");
-                                    printText(1300,120,20,"no link or way !!!");
+                                    printTextSize(1250,120,20,"No link or way Found!",30);
                                     SDL_RenderPresent(renderer);
                                     nid[0]=-1;
                                     nid[1]=-1;
@@ -469,7 +508,7 @@ int main(int argc, char* argv[]) {
                                 
                                 if(!isPrint)
                                 {   
-                                    printTextSize(1200,h_tmp,40,text[6],40);
+                                    printTextSize(1200,h_tmp,40,text[6],30);
                                     h_tmp+=40;
                                     printf("%d\n",h_tmp);
 
@@ -523,8 +562,10 @@ int main(int argc, char* argv[]) {
                             //初始化
                             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
                             SDL_RenderClear(renderer);
-                            initSDL(nodeNum, graphicPoints, adjList, rawNodeList, bounding, validNode);
-                            printTextSize(1250,50,40,"Planning for Min Distance",40);
+                            // initSDL(nodeNum, graphicPoints, adjList, rawNodeList,geomList,geomNum, bounding, validNode);
+                            
+                            initSDL(nodeNum, graphicPoints, adjList, rawNodeList,bounding, validNode);
+                            printTextSize(1210,50,40,"Planning for Min Distance",35);
                             h_tmp=300;
                             SDL_RenderPresent(renderer);
                             n=0;
@@ -572,7 +613,7 @@ int main(int argc, char* argv[]) {
                                 
                                 if(dist[nid[n]]>1e10){
                                     printf("no link or way !!!\n");
-                                    printText(1300,120,20,"no link or way !!!");
+                                    printTextSize(1250,120,20,"No link or way!",30);
                                     SDL_RenderPresent(renderer);
                                     nid[0]=-1;
                                     nid[1]=-1;
@@ -667,11 +708,13 @@ int main(int argc, char* argv[]) {
                             //初始化
                             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
                             SDL_RenderClear(renderer);
+                            // initSDL(nodeNum, graphicPoints, adjList, rawNodeList,geomList,geomNum, bounding, validNode);
                             initSDL(nodeNum, graphicPoints, adjList, rawNodeList, bounding, validNode);
-                            printTextSize(1250,50,40,"Planning for Min time",40);
+                            printTextSize(1210,50,40,"Planning for Min Time",35);
+                            
                             h_tmp=300;
                             SDL_RenderPresent(renderer);
-                            n=(n+1)%2;
+                            n=0;
                             isPrint=false;
                             // canClear=0;
                         } 
@@ -721,7 +764,8 @@ int main(int argc, char* argv[]) {
                             //初始化
                             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
                             SDL_RenderClear(renderer);
-                            initSDL(nodeNum, graphicPoints, adjList, rawNodeList, bounding, validNode);
+                            // initSDL(nodeNum, graphicPoints, adjList, rawNodeList,geomList,geomNum, bounding, validNode);
+                            initSDL(nodeNum, graphicPoints, adjList, rawNodeList,bounding, validNode);
 
                             printTextSize(1250,50,40,"Planning for Min Distance",40);
                             printText(1250,90,20,"(Passing ordered points)");
@@ -795,7 +839,8 @@ int main(int argc, char* argv[]) {
                                 
                                 SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
                                 SDL_RenderClear(renderer);
-                                initSDL(nodeNum, graphicPoints, adjList, rawNodeList, bounding, validNode);
+                                // initSDL(nodeNum, graphicPoints, adjList, rawNodeList,geomList,geomNum, bounding, validNode);
+                                initSDL(nodeNum, graphicPoints, adjList, rawNodeList,bounding, validNode);
                                 printMenu();
                                 SDL_RenderPresent(renderer);
                             }
@@ -815,9 +860,11 @@ int main(int argc, char* argv[]) {
                         SDL_RenderClear(renderer);
                         SDL_RenderPresent(renderer);
                          //初始化
+                        // initSDL(nodeNum, graphicPoints, adjList, rawNodeList,geomList,geomNum, bounding, validNode);
+
                         initSDL(nodeNum, graphicPoints, adjList, rawNodeList, bounding, validNode);
                         keyOfMenu=1;
-                        printTextSize(1250,50,40,"Planning for Min Distance",40);
+                        printTextSize(1210,50,40,"Planning for Min Distance",35);
                         SDL_RenderPresent(renderer);
                         // calculate dijk min dist
 
@@ -831,9 +878,13 @@ int main(int argc, char* argv[]) {
                         SDL_RenderClear(renderer);
                         SDL_RenderPresent(renderer);
                          //初始化
+                         // initSDL(nodeNum, graphicPoints, adjList, rawNodeList,geomList,geomNum, bounding, validNode);
                         initSDL(nodeNum, graphicPoints, adjList, rawNodeList, bounding, validNode);
+                        
+
                         keyOfMenu=2;
-                        printText(1250,50,20,"Planning for Min Time");
+                        printTextSize(1210,50,40,"Planning for Min Time",35);
+
                         SDL_RenderPresent(renderer);
                         // calculate dijk min time
                         break;
@@ -846,10 +897,12 @@ int main(int argc, char* argv[]) {
                         SDL_RenderClear(renderer);
                         SDL_RenderPresent(renderer);
                          //初始化
+                            // initSDL(nodeNum, graphicPoints, adjList, rawNodeList,geomList,geomNum, bounding, validNode);
+
                         initSDL(nodeNum, graphicPoints, adjList, rawNodeList, bounding, validNode);
                         keyOfMenu=3;
-                        printTextSize(1250,50,30,"Planning for Min Distance",30);
-                        printText(1250,70,20,"(passing order points)");
+                        printTextSize(1210,50,30,"Planning for Min Distance",30);
+                        printText(1210,70,20,"(passing ordered points)");
 
                         SDL_RenderPresent(renderer);
                         // calculate min dist passing certain point
@@ -861,8 +914,11 @@ int main(int argc, char* argv[]) {
                         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
                         SDL_RenderClear(renderer);
                         SDL_RenderPresent(renderer);
-                        initSDL(nodeNum, graphicPoints, adjList, rawNodeList, bounding, validNode);
-                        printText(1250,50,20,"Edit Node");
+
+                        // initSDL(nodeNum, graphicPoints, adjList, rawNodeList,geomList,geomNum, bounding, validNode);
+
+                        initSDL(nodeNum, graphicPoints, adjList, rawNodeList,bounding, validNode);
+                        printTextSize(1210,50,35,"Edit Link",35);
                         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
                         SDL_RenderDrawRect(renderer,textBox);
 
@@ -891,7 +947,9 @@ int main(int argc, char* argv[]) {
                         
                         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
                         SDL_RenderClear(renderer);
-                        initSDL(nodeNum, graphicPoints, adjList, rawNodeList, bounding, validNode);
+                        // initSDL(nodeNum, graphicPoints, adjList, rawNodeList,geomList,geomNum, bounding, validNode);
+
+                        initSDL(nodeNum, graphicPoints, adjList, rawNodeList,bounding, validNode);
                         printMenu();
                         SDL_RenderPresent(renderer);
                         break;
