@@ -177,8 +177,7 @@ int getGeomEachNodeNum(char* mapFileName, Geom* geomList){
             while(token!=NULL){
                 token=strtok(NULL," ");
                 geomList[i].nodeNum++;
-                if(i==0)
-                    printf("nodeid= %d\n",geomList[i].nodeNum);
+                
 
             }
             geomList[i].nodeNum--;
