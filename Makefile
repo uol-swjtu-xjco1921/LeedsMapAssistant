@@ -1,10 +1,10 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror
 LDFLAGS = `sdl2-config --cflags --libs` -lm "-lSDL2_ttf" 
-OBJ = main.o readMap.o adjListUtils.o routePlan.o visualize.o edit.o
+OBJ = main.o readMap.o adjListUtils.o routePlan.o visualize.o edit.o errorExit.o
 
 
-all: main
+all: main 
 
 %.o: %.c
 	$(CC) -c  $(CFLAGS)  $< -o $@ $(LDFLAGS)

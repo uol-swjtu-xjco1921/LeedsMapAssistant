@@ -1,32 +1,31 @@
 #include <stdlib.h>
 #include <stdio.h>
-// the head file dealing with exits with error
-#include "ErrorExit.h"
+#include "errorExit.h"
 
-char *errorCandidateStrings[NUM_ERROR_STATUS]=
-    {
-        "SUCCESS: No Error\n",
-        "ERROR: BAD Argument Count\n",
-        "ERROR: Bad File Name (%s)\n",
-        "ERROR: Bad Magic Number (%s)\n",
-        "ERROR: Bad Comment Line (%s)\n",
-        "ERROR: Bad Dimensions (%s)\n",
-        "ERROR: Bad Max Gray Value (%s)\n",
-        "ERROR: Image Malloc Failed\n",
-        "ERROR: Bad Data (%s)\n",
-        "ERROR: Output Failed (%s)\n",
-        "ERROR: Miscellaneous (%s)\n",
-        "ERROR: Unknown (%s)\n"
-    };
-void ErrorExit(int errorCode, char *errStringInsert){
-    if((errorCode<0) || (errorCode>=NUM_ERROR_STATUS)){
-        errorCode=ERROR_UNKNOWN-1;
+void errorExit(int errorCode) {
+    switch (errorCode) {
+        case 1:
+            fprintf(stderr, "Bad argument count\n");
+            break;
+        case 2:
+            fprintf(stderr, "ERROR: Errors exist in opening map file\n");
+            break;
+        case 3:
+            fprintf(stderr, "ERROR: NodeNum=0\n");
+            break;
+        case 4:
+            fprintf(stderr, "ERROR: LinkNum=0\n");
+            break;
+        case 5:
+            fprintf(stderr, "ERROR: Bounding not found\n");
+            break;
+        case 6:
+            fprintf(stderr, "ERROR: =0\n");
+            break;
+        default:
+            fprintf(stderr, "ERROR: Unknown error\n");
+            break;
     }
-    
-    if(errStringInsert==NULL){
-        printf(errorCandidateStrings[NUM_ERROR_STATUS],"Bad Error String!");
-    }
-    printf(errorCandidateStrings[errorCode],errStringInsert);
-    
+
     exit(errorCode);
 }

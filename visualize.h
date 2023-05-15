@@ -14,9 +14,13 @@
 #include "routePlan.h"
 
 double calXRelativePos(double lon, double minLon, double maxLon);
+
 double calYRelativePos(double lat, double minLat, double maxLat);
 double my_sqrt(double x);
 int printText(int wd, int ht, int boxSize, char* input);
+bool withinBounding(double lon, double lat, double *bounding);
 
-int findNearestNode(RawNode* rawNodeList, int nodeNum, double xPos, double yPos, double* bounding);
+int findNearestNode(RawNode *rawNodeList, int nodeNum, double xPos, double yPos, double *bounding);
+int findLink(int start, int end, RawEdge* rawEdgeList,int linkNum);
+
 #endif

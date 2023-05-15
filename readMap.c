@@ -352,7 +352,7 @@ int getRawBound(char* mapFileName, double *bounding){
                 // printf("min lat: %lf\n", minLon);                
             }else {
                 printf("Failed to parse the bounding element.\n");
-                exit(6);
+                exit(60);
             }
          }
     }
