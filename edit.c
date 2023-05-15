@@ -1,22 +1,6 @@
 #include "edit.h"
 
-int searchNode(int mode, RawNode* rawNodeList, double a, double b, int *nodeId, Pair* pairs,int nodeNum){
-    if(mode==1){
-        for(int i=0; i<nodeNum;i++){
-            if( fabs(rawNodeList[i].lon-a)<1e-6 && fabs(rawNodeList[i].lat-b)<1e-6 ){
-                *nodeId=rawNodeList[i].newId;
-                return 0; 
-            }
-        }      
-    }else if(mode==2&& a<1e-6){
-        *nodeId=find_value_by_key(pairs, nodeNum, (int)round(b));
-        return 0;
-    }else{
-        fprintf(stderr,"Bad argument input!\n");
-        return -10;
-    }
-    return 0;
-}
+
 
 int editLinkVal(int mode, RawEdge* rawEdgeList, double changeVal, int linkId){
     if (!(mode==1||mode==2||mode==3||mode==4||mode==5||mode==0)){
@@ -30,8 +14,9 @@ int editLinkVal(int mode, RawEdge* rawEdgeList, double changeVal, int linkId){
         case 0:
         {   
             FILE* fp=fopen("editLog.txt","w");
-            printf("clear editLog.txt\n");
-            fprintf(fp,"clear editLog.txt\n");
+            // printf("clear editLog.txt\n");
+            fprintf(fp,"clear editLog.txt. Done!\n");
+            fclose(fp);
             break;
         }
         case 1:
@@ -67,6 +52,7 @@ int editLinkVal(int mode, RawEdge* rawEdgeList, double changeVal, int linkId){
             printf("link[%d](%d/%d<->%d/%d).speed from %.3lf to %.3lf\n",rawEdgeList[i].id,rawEdgeList[i].node1,rawEdgeList[i].newNode1,rawEdgeList[i].node2,rawEdgeList[i].newNode2,rawEdgeList[i].speed, changeVal);
             fprintf(fp,"link[%d](%d/%d<->%d/%d).speed from %.3lf to %.3lf\n",rawEdgeList[i].id,rawEdgeList[i].node1,rawEdgeList[i].newNode1,rawEdgeList[i].node2,rawEdgeList[i].newNode2,rawEdgeList[i].speed, changeVal);
             rawEdgeList[i].speed=changeVal;
+            rawEdgeList[i].isDefault=false;
             fclose(fp);
             break;
         }
@@ -104,7 +90,7 @@ int addLink(RawEdge* rawEdgeForAdd, int addId, int addNodeId1, int addNodeId2, i
         }else{
             rawEdgeForAdd->speed=5;
         }
-        
+        rawEdgeForAdd->isDefault=true;
         
         
         char tmp[20]={};
@@ -208,7 +194,18 @@ int writeEditedMap(char* newMapFileName,double* bounding, RawEdge* rawEdgeList, 
         }
         fprintf(fp, " /geom>\n");
     }
-    // for(int i=)
+    // <spd linkId=-2143392622 speed=100 /spd>
+    for(int j=0;j<linkNum;j++){
+        if(rawEdgeList[j].isDefault){
+            continue;
+        }else{
+            fprintf(fp,"<spd linkId=%d speed=%.6lf /spd>\n",rawEdgeList[j].id,rawEdgeList[j].speed);
+        }
+
+
+        // fprintf(fp,"<spd linkId=%d speed=%.6lf /spd>\n",speedList[i].linkId,speedList[i].value);}
+        
+    }
     fclose(fp);
     return 0;
     

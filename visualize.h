@@ -13,6 +13,8 @@
 #include "readMap.h"
 #include "routePlan.h"
 
+double calXRelativePos(double lon, double minLon, double maxLon);
+double calYRelativePos(double lat, double minLat, double maxLat);
 double my_sqrt(double x);
 int printText(int wd, int ht, int boxSize, char* input);
 

@@ -1,11 +1,2 @@
-clear editLog.txt
-Add a link:
-<link id=1111 node=151854818 node=54060637 way=2222 length=30.000000 veg=0.000000 arch=0.000000 land=0.000000 POI=6,7,;/link>
-Add a link:
-<link id=1112 node=151854818 node=54060637 way=172 length=2.000000 veg=0.000000 arch=0.000000 land=0.000000 POI=9,;/link>
-link[-2143393040](54070561/422<->54070564/423).veg from 0.000 to 12.000
-link[-2143393051](54070561/422<->52905134/434).veg from 0.000 to 12.000
-Add a link:
-<link id=12345 node=151854818 node=54060637 way=54321 length=10.000000 veg=0.000000 arch=0.000000 land=0.000000 POI=1,;/link>
-Add a link:
-<link id=123 node=54070613 node=52905134 way=321 length=10.000000 veg=0.000000 arch=0.000000 land=0.000000 POI=1,;/link>
+
+link[-2143393052](54070558/421<->54070611/435).veg from 0.000 to 2.000

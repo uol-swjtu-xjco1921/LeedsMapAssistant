@@ -230,6 +230,21 @@ int getRawGeom(char* mapFileName, Geom* geomList, int geomNum, Pair* pairs,int n
     }
     return 0;
 }
+int getSpeedNum(char* mapFileName){
+    int speedNum=0;
+    char str[500];
+    FILE *fp=fopen(mapFileName, "r");
+    while (fgets(str,500, fp) != NULL) {
+        if (strstr(str, "<spd") != NULL) {
+            speedNum++;
+    
+        }
+    }
+    fclose(fp);
+    return speedNum;
+}
+
+
 
 int compare_pair_key(const void *a, const void *b) {
     Pair *p1 = (Pair *)a;
@@ -395,6 +410,7 @@ int getRawLink(char* mapFileName, RawEdge* rawEdgeList, int edgeNum, Pair* pairs
                 }else{
                     rawEdgeList[index].speed=5;
                 }
+                rawEdgeList[index].isDefault=true;
                 int poiLen = strlen(poi) + 1; 
                 rawEdgeList[index].poi = (char*) malloc(poiLen * sizeof(char));
                 strcpy(rawEdgeList[index].poi, poi);
@@ -415,6 +431,48 @@ int getRawLink(char* mapFileName, RawEdge* rawEdgeList, int edgeNum, Pair* pairs
 
 // }
 // int getRawWay(char* mapFileName, Way* way, Pair* pairs, int nodeNum);
+
+int getRawSpeed(char* mapFileName, Speed* speedList, int speedNum){
+    int index=0;
+    
+    FILE* fp=fopen(mapFileName, "r");
+    // Read the map once a line
+    char str[500];
+    while (fgets(str, sizeof(str), fp)) {
+        // get newline without "\n" from the buffer string 
+        char *p = str;
+        char *q = str;
+        while (*p != '\0') {
+            if (*p != '\n') {
+                *q++ = *p;
+            }
+            p++;
+        }
+        *q = '\0';
+
+        
+        if(strncmp(str, "<spd", 4) == 0) {
+             int linkId;
+             double spd;
+             int count = sscanf(str, "<spd linkId=%d speed=%lf /spd>",
+                                            &linkId, &spd);
+            if(count==2){
+                
+                speedList[index].linkId=linkId;
+                speedList[index].value=spd;
+                
+                if(index<=speedNum)
+                    index++;
+                
+            }else {
+                printf("Failed to parse the node element.\n");
+                exit(6);
+            }
+         }
+    }
+    fclose(fp);
+    return 0;
+}
 
 void checkLinkByNode(RawEdge* rawEdgeList, RawNode* rawNodeList,int nodeNum,int linkNum,bool* validLink){
     

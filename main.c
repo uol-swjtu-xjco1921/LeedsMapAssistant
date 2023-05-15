@@ -92,8 +92,8 @@ double calYRelativePos(double lat, double minLat, double maxLat){
     return (lat - minLat) / (maxLat - minLat);
 }
 double my_sqrt(double x) {
-    double y = x / 2.0; // 初始值可以取 x/2，也可以取其他值
-    double eps = 1e-6;  // 精度要求可以根据具体情况调整
+    double y = x / 2.0; 
+    double eps = 1e-6;  
 
     while (fabs(y * y - x) > eps) {
         y = (y + x / y) / 2.0;
@@ -170,39 +170,7 @@ void initSDL(int nodeNum, SDL_Rect* graphicPoints, AdjList* adjList,RawNode* raw
         // puts("");
     }
 
-    // for(int i=0; i<geomNum;i++){
-    //     printf("check i=%d   %d\n",i,geomList[i].nodeNum);
-    //     for(int j=0; j<geomList[i].nodeNum;j++)
-    //     {   
-    //         int end=j+1;
-    //         printf("geomList[i].newNodeList[end=%d]=%d\n",end,geomList[i].newNodeList[end]);
-    //         printf("id=%d/%d\n",geomList[i].newNodeList[j],geomList[i].nodeList[j]);
-    //         // if(j==geomList[i].nodeNum-1){
-    //         //     end=0;
-    //         // }else{
-    //         //     end=j+1;
-    //         // }
-    //         if(validNode[geomList[i].newNodeList[j]]&&validNode[geomList[i].newNodeList[end]])
-    //         {       
-    //                 SDL_SetRenderDrawColor(renderer, 255, 20, 0, 50);
-
-    //                 SDL_RenderDrawLine(renderer,
-    //                 calXRelativePos(rawNodeList[geomList[i].newNodeList[j]].lon,minLon,maxLon)* MAP_X_SIZE , 
-    //                 (1 - calYRelativePos(rawNodeList[geomList[i].newNodeList[j]].lat,minLat,maxLat)) * Y_SIZE ,  
-    //                 calXRelativePos(rawNodeList[geomList[i].newNodeList[end]].lon,minLon,maxLon) * MAP_X_SIZE , 
-    //             (1 - calYRelativePos(rawNodeList[geomList[i].newNodeList[end]].lat,minLat,maxLat)) * Y_SIZE 
-    //                 );
-                
-    //             printf("%d\n",end);
-    //         }
-    //     }
-
-    // }
-    // SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-
-
-
-    // printMenu();
+    
     
     
     SDL_RenderPresent(renderer);
@@ -244,9 +212,7 @@ int showTaskPath(PathList* pathList, RawNode* rawNodeList, double *bounding,int 
     return 0;
 }
 
-// int reload(){
 
-// }
 
 
 int main(int argc, char* argv[]) {
@@ -280,8 +246,9 @@ int main(int argc, char* argv[]) {
     int nodeNum=getRawNodeNum(mapFileName);
     int geomNum=getRawGeomNum(mapFileName);
     int wayNum=getRawWayNum(mapFileName);
+    int speedNum=getSpeedNum(mapFileName);
     
-    printf("linkNum: %d, nodeNum: %d, wayNum: %d, geomNum: %d\n",linkNum,nodeNum,wayNum,geomNum);
+    printf("linkNum: %d, nodeNum: %d, wayNum: %d, geomNum: %d, speedNum: %d\n",linkNum,nodeNum,wayNum,geomNum,speedNum);
 
     Pair *pairs = (Pair *)malloc(nodeNum * sizeof(Pair));
     Pair *pairs2 = (Pair *)malloc(nodeNum * sizeof(Pair));
@@ -308,6 +275,21 @@ int main(int argc, char* argv[]) {
     RawEdge* rawEdgeList=(RawEdge*)malloc(linkNum*sizeof(RawEdge));
     getRawLink(mapFileName, rawEdgeList, linkNum, pairs, nodeNum);
 
+    Speed* speedList=(Speed*)malloc(speedNum*sizeof(Speed));
+    getRawSpeed(mapFileName, speedList,speedNum);
+    
+    if(speedNum!=0){
+        for(int i=0;i<speedNum;i++){
+            for(int j=0;j<linkNum;j++){
+                if(rawEdgeList[j].id==speedList[i].linkId){
+                    rawEdgeList[j].speed=speedList[i].value;
+                    rawEdgeList[j].isDefault=false;
+                }
+            }
+        }
+    }
+    
+
     for (int i=0;i<linkNum;i++){
         addEdge(adjList, rawEdgeList[i].newNode1, rawEdgeList[i].newNode2, rawEdgeList[i].len);
         addEdge(adjList, rawEdgeList[i].newNode2, rawEdgeList[i].newNode1, rawEdgeList[i].len);
@@ -323,7 +305,7 @@ int main(int argc, char* argv[]) {
     double* dist=(double*)malloc(nodeNum*sizeof(double));
     int *pd=(int*)malloc(sizeof(int)*nodeNum);
     PathList* pathList=(PathList*)malloc(sizeof(PathList));
-    // PathList* tmpPathList=(PathList*)malloc(50*sizeof(PathList));
+
     int totalPaths[500];
     int totalNum=0;
     PathList* totalPathList=(PathList*)malloc(sizeof(PathList));
@@ -332,7 +314,7 @@ int main(int argc, char* argv[]) {
     addPathList->pathNum=2;
     addPathList->path=(int*)malloc(sizeof(int)*2);
     
-    // totalPathList->path=(int*)malloc(500*sizeof(int));
+    
 
     dijk(adjList, 0, pd,dist);
     printf("\nlineNum: %d\n",adjList->lineNum);
@@ -354,18 +336,7 @@ int main(int argc, char* argv[]) {
     
     graphicPoints = (SDL_Rect *)malloc(sizeof(SDL_Rect) * nodeNum);
     
-    // writeEditedMap(
-    //     "newLeeds.map",
-    //     bounding,
-    //     rawEdgeList,
-    //     rawNodeList,
-    //     wayList,
-    //     geomList,
-    //     linkNum,
-    //     nodeNum,
-    //     wayNum,
-    //     geomNum
-    // );
+
 
     bool* validNode = (bool*)calloc(nodeNum, sizeof(bool));
     bool* validPathNode = (bool*)calloc(nodeNum, sizeof(bool));
@@ -500,7 +471,7 @@ int main(int argc, char* argv[]) {
                                     break;
                                 }else{backtrackPath(pd, pathList, nid[1-n], nid[n], nodeNum);
                                 pathPoints = (SDL_Rect *)malloc(sizeof(SDL_Rect)*pathList->pathNum);
-                                char text[7][200];
+                                char text[8][200];
                                 
                                 sprintf(text[0], "Click at start pos (id = %d/%d)", nid[1-n], find_key_by_value(pairs2, nodeNum,nid[1-n]));
                                 sprintf(text[1], " (%.3lf, %.3lf)", rawNodeList[nid[1-n]].lon, rawNodeList[nid[1-n]].lat);
@@ -509,8 +480,23 @@ int main(int argc, char* argv[]) {
                                 sprintf(text[4], " (%.3lf, %.3lf)", rawNodeList[nid[n]].lon, rawNodeList[nid[n]].lat);
                                 sprintf(text[5], " (%d, %d)", graphicPoints[nid[n]].x, graphicPoints[nid[n]].y);
                                 sprintf(text[6], " Min Distance=%.3lf", dist[nid[n]]);
+                                sprintf(text[7],"The Nearest Path from start pos (id = %d/%d) to end pos (id = %d/%d) is: \n" ,
+                                            nid[1-n],find_key_by_value(pairs2, nodeNum,nid[1-n]), nid[n], find_key_by_value(pairs2, nodeNum,nid[n]));
+                                FILE* outfp=fopen("routePlanNearestPath.txt", "w");
+                                fprintf(outfp,"%s",text[7]);
+                                for(int node=0;node<pathList->pathNum;node++){
+                                    
+                                    
+                                    if(node==0){
+                                        fprintf(outfp, "%d/%d",pathList->path[node],find_key_by_value(pairs2, nodeNum,pathList->path[node]));
+                                    }else{
+                                        fprintf(outfp, "->%d/%d",pathList->path[node],find_key_by_value(pairs2, nodeNum,pathList->path[node]));
+                                    }
+                                   
+                                }
+                                fprintf(outfp,"\n%s\n",text[6]);
                                 
-                                
+                                fclose(outfp);
                                 
                                 if(!isPrint)
                                 {   
@@ -639,20 +625,23 @@ int main(int argc, char* argv[]) {
                                 sprintf(text[4], " (%.3lf, %.3lf)", rawNodeList[nid[n]].lon, rawNodeList[nid[n]].lat);
                                 sprintf(text[5], " (%d, %d)", graphicPoints[nid[n]].x, graphicPoints[nid[n]].y);
                                 sprintf(text[6], " Min Time=%.3lf", dist[nid[n]]);
+                                // path saved to file
                                 sprintf(text[7],"The Quickest Path from start pos (id = %d/%d) to end pos (id = %d/%d) is: \n" ,
                                             nid[1-n],find_key_by_value(pairs2, nodeNum,nid[1-n]), nid[n], find_key_by_value(pairs2, nodeNum,nid[n]));
+                                
                                 FILE* outfp=fopen("routePlanQuickPath.txt", "w");
                                 fprintf(outfp,"%s",text[7]);
                                 for(int node=0;node<pathList->pathNum;node++){
                                     
                                     
                                     if(node==0){
-                                        fprintf(outfp, "%d",pathList->path[node]);
+                                        fprintf(outfp, "%d/%d",pathList->path[node],find_key_by_value(pairs2, nodeNum,pathList->path[node]));
                                     }else{
-                                        fprintf(outfp, "->%d",pathList->path[node]);
+                                        fprintf(outfp, "->%d/%d",pathList->path[node],find_key_by_value(pairs2, nodeNum,pathList->path[node]));
                                     }
                                    
                                 }
+                                fprintf(outfp,"\n%s\n",text[6]);
                                 
                                 fclose(outfp);
                                 
@@ -740,7 +729,17 @@ int main(int argc, char* argv[]) {
                             oid[n-1]=findNearestNode(rawNodeList,nodeNum,x,y,bounding);
                             
                             if(oid[n-1]!=-1&&validNode[oid[n-1]])
-                            {
+                            {   
+                                if(n==1){
+                                    // "At No.%d pos(id = %d/%d): (%d, %d)\n",n,oid[n-1],find_key_by_value(pairs2,nodeNum,oid[n-1]), graphicPoints[oid[n-1]].x, graphicPoints[oid[n-1]].y
+                                    
+                                    
+                                    sprintf(text3[0], "At No.%d pos(id = %d/%d): (%d, %d)\n",n,oid[n-1],find_key_by_value(pairs2,nodeNum,oid[n-1]), graphicPoints[oid[n-1]].x, graphicPoints[oid[n-1]].y);
+
+                                    // printTextSize(1210,90,30,text[0],30);
+                                }else{
+
+                                }
                                 arr.w = pathNodeSize;
                                 arr.h = pathNodeSize;
                                 arr.x = graphicPoints[oid[n-1]].x;
@@ -773,9 +772,9 @@ int main(int argc, char* argv[]) {
                             // initSDL(nodeNum, graphicPoints, adjList, rawNodeList,geomList,geomNum, bounding, validNode);
                             initSDL(nodeNum, graphicPoints, adjList, rawNodeList,bounding, validNode);
 
-                            printTextSize(1250,50,40,"Planning for Min Distance",40);
-                            printText(1250,90,20,"(Passing ordered points)");
-
+                            printTextSize(1210,50,35,"Planning for Min Distance",35);
+                            printTextSize(1250,90,30,"(Passing ordered points)",30);
+                            tmpDist3=0;
                             h_tmp=300;
                             SDL_RenderPresent(renderer);
                             n=0;
@@ -916,26 +915,14 @@ int main(int argc, char* argv[]) {
                                 // initSDL(nodeNum, graphicPoints, adjList, rawNodeList,geomList,geomNum, bounding, validNode);
                                 initSDL(nodeNum, graphicPoints, adjList, rawNodeList,bounding, validNode);
                                 printTextSize(1210,50,35,"Search Node",35);
+
                                 SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
                                 SDL_RenderDrawRect(renderer,textBox);
                                 // printMenu();
                                 SDL_RenderPresent(renderer);
 
 
-                                // // ====================================
-                                // // SDL_RenderClear(renderer);
-                                // //初始化
-                                // SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-                                // SDL_RenderClear(renderer);
-                                // // initSDL(nodeNum, graphicPoints, adjList, rawNodeList,geomList,geomNum, bounding, validNode);
-                                // initSDL(nodeNum, graphicPoints, adjList, rawNodeList, bounding, validNode);
-                                // printTextSize(1210,50,40,"Planning for Min Time",35);
-                                
-                                // h_tmp=300;
-                                // SDL_RenderPresent(renderer);
-                                // n=0;
-                                // isPrint=false;
-                                // // canClear=0;
+
                                 
                             }
                             break;
@@ -995,6 +982,12 @@ int main(int argc, char* argv[]) {
                                 // initSDL(nodeNum, graphicPoints, adjList, rawNodeList,geomList,geomNum, bounding, validNode);
                                 initSDL(nodeNum, graphicPoints, adjList, rawNodeList,bounding, validNode);
                                 printTextSize(1210,50,35,"Add Link",35);
+                                printTextSize(1210,220,25,"click 2 nodes and enter in the",25);
+
+                                printTextSize(1210,250,25,"format: linkId wayId len poi1(,poi2...)",25);
+
+                                // printTextSize(1210,200,35,"Add Link",30);
+
                                 SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
                                 SDL_RenderDrawRect(renderer,textBox);
                                 // printMenu();
@@ -1057,8 +1050,9 @@ int main(int argc, char* argv[]) {
 
                         initSDL(nodeNum, graphicPoints, adjList, rawNodeList, bounding, validNode);
                         keyOfMenu=3;
-                        printTextSize(1210,50,30,"Planning for Min Distance",30);
-                        printText(1210,70,20,"(passing ordered points)");
+                        printTextSize(1210,50,35,"Planning for Min Distance",35);
+                        printTextSize(1250,90,30,"(Passing ordered points)",30);
+                        
 
                         SDL_RenderPresent(renderer);
                         // calculate min dist passing certain point
@@ -1075,6 +1069,9 @@ int main(int argc, char* argv[]) {
 
                         initSDL(nodeNum, graphicPoints, adjList, rawNodeList,bounding, validNode);
                         printTextSize(1210,50,35,"Edit Link",35);
+                        printTextSize(1220,200,25,"please click 2 points and",25);                
+                        printTextSize(1220,240,25,"enter 2 numbers spt by a space!",25);                
+                        
                         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
                         SDL_RenderDrawRect(renderer,textBox);
 
@@ -1098,6 +1095,11 @@ int main(int argc, char* argv[]) {
 
                         
                         printTextSize(1210,50,40,"Search Node",35);
+                        
+                        printTextSize(1210,285,30,"Enter the rawId",30);
+
+                        // mode1: a=lon, b=lat
+                        // mode2: a=0, b= rawId
                         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
                         SDL_RenderDrawRect(renderer,textBox);
                         SDL_RenderPresent(renderer);
@@ -1116,6 +1118,8 @@ int main(int argc, char* argv[]) {
 
                         initSDL(nodeNum, graphicPoints, adjList, rawNodeList,bounding, validNode);
                         printTextSize(1210,50,35,"Add Link",35);
+                        printTextSize(1210,220,25,"click 2 nodes and enter in the",25);
+                        printTextSize(1210,250,25,"format: linkId wayId len poi1(,poi2...)",25);
                         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
                         SDL_RenderDrawRect(renderer,textBox);
 
@@ -1176,88 +1180,49 @@ int main(int argc, char* argv[]) {
                             }
                             pathPoints = (SDL_Rect *)malloc(sizeof(SDL_Rect)*totalPathList->pathNum);
                             showTaskPath(totalPathList, rawNodeList, bounding, pathNodeSize, validPathNode);
+                            sprintf(text3[2],"The Nearest Path from start pos (id = %d/%d) to end pos (id = %d/%d) is: \n" ,
+                                            totalPathList->path[0],find_key_by_value(pairs2, nodeNum,totalPathList->path[0]), 
+                                            totalPathList->path[totalNum-1], find_key_by_value(pairs2, nodeNum,totalPathList->path[totalNum-1])
+                                    );
+                            FILE* outfp=fopen("routePlanOrderedPath.txt", "w");
+                            fprintf(outfp,"%s",text3[2]);
+                            for(int node=0;node<totalPathList->pathNum;node++){
+                                // if(node!=totalPathList->pathNum-1)
+                                // {
+                                //     findLink(totalPathList->path[node],totalPathList->path[node+1],rawEdgeList,linkNum);
+
+                                // }
+                                
+                                if(node==0){
+                                    fprintf(outfp, "%d/%d",totalPathList->path[node],find_key_by_value(pairs2, nodeNum,totalPathList->path[node]));
+                                    
+                                }else{
+                                    fprintf(outfp, "->%d/%d",totalPathList->path[node],find_key_by_value(pairs2, nodeNum,totalPathList->path[node]));
+                                }
+                                
+                            }
+                            char text3d[3][500]={};
+
+                            sprintf(text3d[0],"Min distance= %.3lf",tmpDist3);
+                            
+                            printTextSize(1220,280,30,text3d[0],30);
+
+                            SDL_RenderPresent(renderer);
+                            fclose(outfp);
                             totalNum=0;
                             for(int m=0;m<500;m++)
                                 totalPaths[m]=-1;
                             n=0;
-                            // if(nid[1-n]!=-1&&nid[n]!=-1&&n==0){
-                            //     int* pd=(int*)calloc(nodeNum,sizeof(int));
-                            //     dijk(adjListTime,nid[1-n],pd, dist);
-                                
-                            //     if(dist[nid[n]]>1e10){
-                            //         printf("no link or way !!!\n");
-                            //         printText(1300,120,20,"no link or way !!!");
-                            //         SDL_RenderPresent(renderer);
-                            //         nid[0]=-1;
-                            //         nid[1]=-1;
-                            //         n=0;
-                            //         h_tmp=300;
-                            //         break;
-                            //     }
-                                //  backtrackPath(pd, pathList, nid[1-n], nid[n], nodeNum);
-                            //     pathPoints = (SDL_Rect *)malloc(sizeof(SDL_Rect)*pathList->pathNum);
-                                // char text[7][200];
-                                
-                                // sprintf(text[0], "Click at start pos (id = %d)", find_key_by_value(pairs2, nodeNum,nid[1-n]));
-                                // sprintf(text[1], " (%lf, %lf)", rawNodeList[nid[1-n]].lon, rawNodeList[nid[1-n]].lat);
-                                // sprintf(text[2], " (%d, %d)", graphicPoints[nid[1-n]].x, graphicPoints[nid[1-n]].y);
-                                // sprintf(text[3], "Click at end pos (id = %d)", find_key_by_value(pairs2, nodeNum,nid[n]));
-                                // sprintf(text[4], " (%lf, %lf)", rawNodeList[nid[n]].lon, rawNodeList[nid[n]].lat);
-                                // sprintf(text[5], " (%d, %d)", graphicPoints[nid[n]].x, graphicPoints[nid[n]].y);
-                                // sprintf(text[6], " Min Time=%lf\n", dist[nid[n]]);
-                                
-                                
-                                
-                                // if(!isPrint)
-                                // {
-                                //     printText(1300,h_tmp,20,text[0]);
-                                //     h_tmp+=20;
-                                //     printf("%d\n",h_tmp);
-                                    
-                                //     printText(1300,h_tmp,20,text[1]);
-                                //     h_tmp+=20;
-                                //     printf("%d\n",h_tmp);
-                                    
-
-                                //     printText(1300,h_tmp,20,text[2]);
-                                //     h_tmp+=20;
-                                //     printf("%d\n",h_tmp);
-
-                                //     printText(1300,h_tmp,20,text[3]);
-                                //     h_tmp+=20;
-                                //     printf("%d\n",h_tmp);
-
-                                //     printText(1300,h_tmp,20,text[4]);
-                                //     h_tmp+=20;
-                                //     printf("%d\n",h_tmp);
-
-                                //     printText(1300,h_tmp,20,text[5]);
-                                //     h_tmp+=20;
-                                //     printf("%d\n",h_tmp);
-
-                                //     printText(1300,h_tmp,20,text[6]);
-                                //     h_tmp+=20;
-                                //     printf("%d\n",h_tmp);
-
-                                //     isPrint=true;
-                                // }else{
-                                //     ;
-                                // }
-                                // printf("min time=%lf\n", dist[nid[n]]);
-                                // showTaskPath(pathList, rawNodeList, bounding, pathNodeSize, validPathNode);
-                                
-                                // canClear=1;
-                            // }
+                            
                             //================================================================================================================
                         }
                         else if(keyOfMenu==4){
-                                                   
+                                
+                                
                                 int mode=-1;
                                 double changeVal=0;
                                 int check=sscanf(text4, "%d %lf",&mode, &changeVal);
-                                // printf("整数: %d\n", mode);
-                                // printf("浮点数: %lf\n", changeVal);
-                                // printf("%d\n",check);
+                               
                                 if(check==2&&oid[0]!=-1&&oid[1]!=-1){
                                     // printf("%d\noid[0]=%d/%d \n oid[1]=%d/%d\n",check,oid[0],find_key_by_value(pairs2, nodeNum, oid[0]),oid[1],find_key_by_value(pairs2, nodeNum, oid[1]));
                                     int linkId=findLink(oid[0], oid[1],rawEdgeList,linkNum);
@@ -1267,10 +1232,22 @@ int main(int argc, char* argv[]) {
                                             if(mode!=0){
                                                 
                                                 
-                                                printf("Edit Successfully! Try to restart and reload map file now.\n");
+                                               
+                                                printTextSize(1220,280,30,"Edit Successfully! ",30);
+                                                printTextSize(1220,320,30,"Click 'ctrl' to save map file now.",25);
+                                                printTextSize(1220,360,30,"Or 'esc' to abort change.",25);
+
+                                                SDL_RenderPresent(renderer);
+                                            }else{
+                                                printf("clear editLog.txt. Done!\n");
+                                                printTextSize(1220,150,30,"clear editLog.txt. Done!",30);
+                                                SDL_RenderPresent(renderer);
                                             }
                                         }else{
-                                            printf("bad mode number\n");
+                                            printf("Bad mode number\n");
+                                            printTextSize(1220,250,30,"Bad mode number",30);
+
+                                            SDL_RenderPresent(renderer);
                                         }
                                             
                                         
@@ -1278,14 +1255,18 @@ int main(int argc, char* argv[]) {
                                     }
                                     else{
                                         printf("No Related Link found\n");
+                                        printTextSize(1220,280,30,"No Related Link found",30);
+                                        printTextSize(1220,320,30,"Clear and try again",30);
+
+                                        SDL_RenderPresent(renderer);
                                     }
 
                                 }else{
                                     printf("please click 2 points and enter 2 numbers spt by a space!");
                                 }
-                                // n=0;
-                                // oid[0]=-1;
-                                // oid[1]=-1;
+                                n=0;
+                                oid[0]=-1;
+                                oid[1]=-1;
                             // }else if ( key == SDLK_e){
                                 
                             // }
@@ -1293,31 +1274,24 @@ int main(int argc, char* argv[]) {
 
                             // SDL_RenderPresent(renderer);
                         }else if(keyOfMenu==5){
-                            int mode=-1;
-                            double a=-1, b=-1;
+                            
                             int nodeId=-1;
-                            int checkSearch=-1; 
-                            int check=sscanf(text5, "%d %lf %lf", &mode, &a, &b);
-                            printf("%d %lf %lf\n", mode, a, b);
-                            if (check==3){
+                             
+                            int check=sscanf(text5, "%d", &nodeId);
+                            
+                            printf("%d\n",nodeId);
+                            if (check==1){
+                                nodeId=find_value_by_key(pairs,nodeNum,nodeId);
                                 
-                                if (mode==1 || mode==2){
-                                    // mode1: a=lon, b=lat
-                                    // mode2: a=0, b= rawId
-                                    
-
-                                    checkSearch=searchNode(mode,rawNodeList,a,b,&nodeId,pairs,nodeNum);
-                                    printf("%d",checkSearch);
                                 }else{
                                     fprintf(stderr,"Bad argument input!\n");
+                                    printTextSize(1220,250,25,"Bad argument input!",25);
+                                    SDL_RenderPresent(renderer);
                                     
                                 }
-                            }else{
-                                fprintf(stderr,"Bad argument!\n");
-                                
-                            }
+                           
                             
-                            if(nodeId!=-1&&checkSearch==0){
+                            if(nodeId!=-1&&check==1){
                                 
 
                                 SDL_Rect arr5;
@@ -1333,7 +1307,22 @@ int main(int argc, char* argv[]) {
                                         nodeId,find_key_by_value(pairs2, nodeNum, nodeId), 
                                         graphicPoints[nodeId].x, 
                                         graphicPoints[nodeId].y);
+                                char text5[2][100]={};
+                                sprintf(text5[0],"At pos(id=%d/%d):",
+                                        nodeId,find_key_by_value(pairs2, nodeNum, nodeId)
+                                       );
+                                sprintf(text5[1],"(%d, %d)",
+                                        graphicPoints[nodeId].x, 
+                                        graphicPoints[nodeId].y);
+                                printTextSize(1220,320,25,text5[0],25);
+                                printTextSize(1220,350,25,text5[1],25);
 
+                                SDL_RenderPresent(renderer);
+
+                            }else{
+                                fprintf(stderr,"Bad argument input!\n");
+                                printTextSize(1220,250,25,"Bad argument input!",25);
+                                SDL_RenderPresent(renderer);
                             }
 
                            
@@ -1343,65 +1332,46 @@ int main(int argc, char* argv[]) {
                             char addPoi[20]={};
                             
                             int check=sscanf(text6, "%d %d %lf %s", &addId, &addWay, &addLen, addPoi);
-                                printf("%d\n整数: %d %d\n",check, addId, addWay);
-                                printf("浮点数: %lf\n", addLen);
-                                printf("poi= %s\n",addPoi);
-
+                            
                             if(check==4&&oid[0]!=-1&&oid[1]!=-1){
                                 addLink(rawEdgeForAdd, addId, oid[0], oid[1], addWay, addLen, addPoi, &isAddLink, pairs2, nodeNum);
                                 
                                 addPathList->path[0]=oid[0];
                                 addPathList->path[1]=oid[1];
-                                printf("ch1\n%d %d\n",addPathList->path[0],addPathList->path[1]);
+                                char tmp6[6][100]={};
+                                sprintf(tmp6[0],"%d/%d<->%d/%d",addPathList->path[0],find_key_by_value(pairs2,nodeNum,addPathList->path[0]),addPathList->path[1],find_key_by_value(pairs2,nodeNum,addPathList->path[1]));
+                                sprintf(tmp6[1],"linkId=%d,wayId=%d",addId,addWay);
+                                sprintf(tmp6[2],"len=%.3lf,poi=%s",addLen,addPoi);
+                                sprintf(tmp6[3],"Add to temp area.");
+                                sprintf(tmp6[4],"Please push 'ctrl' to save.");
+                                sprintf(tmp6[5],"or 'esc' to abort.");
+
+
+                                printTextSize(1210,280,25,tmp6[0],25);
+                                printTextSize(1210,310,25,tmp6[1],25);
+                                printTextSize(1210,340,25,tmp6[2],25);
+                                printTextSize(1210,370,25,tmp6[3],25);
+                                printTextSize(1210,400,25,tmp6[4],25);
+                                printTextSize(1210,430,25,tmp6[5],25);
+
+
+
                                 pathPoints = (SDL_Rect *)malloc(sizeof(SDL_Rect)*addPathList->pathNum);
                                 showTaskPath(addPathList,rawNodeList,bounding,pathNodeSize,validPathNode);
-                                printf("Add to temp area, please push 'ctrl' to save.\n");
+                                // printf("Add to temp area, please push 'ctrl' to save.\n");
                             }
                             
-                            //     // printf("%d\n",check);
-                            //     if(check==2&&oid[0]!=-1&&oid[1]!=-1){
-                            //         // printf("%d\noid[0]=%d/%d \n oid[1]=%d/%d\n",check,oid[0],find_key_by_value(pairs2, nodeNum, oid[0]),oid[1],find_key_by_value(pairs2, nodeNum, oid[1]));
-                            //         int linkId=findLink(oid[0], oid[1],rawEdgeList,linkNum);
-                            //         if (linkId!=-1){
-                            //             if(editLinkVal(mode,rawEdgeList,changeVal,linkId)==0)
-                            //             {
-                            //                 if(mode!=0){
-                                                
-                                                
-                            //                     printf("Edit Successfully! Try to restart and reload map file now.\n");
-                            //                 }
-                            //             }else{
-                            //                 printf("bad mode number\n");
-                            //             }
-                                            
-                                        
-                            //             // printf();
-                            //         }
-                            //         else{
-                            //             printf("No Related Link found\n");
-                            //         }
-
-                            //     }else{
-                            //         printf("please click 2 points and enter 2 numbers spt by a space!");
-                            //     }
+                            
                                 n=0;
                                 oid[0]=-1;
                                 oid[1]=-1;
                                 memset(text6,0,sizeof(text6));
                                 
-                                // rawEdgeForAdd[0].id=0;
-                                // rawEdgeForAdd[0].len=0;
-                                // raw
-                            // // }else if ( key == SDLK_e){
-                                
-                            // // }
-                            
-
-                            // // SDL_RenderPresent(renderer);
+                               
                         }
                     }
                     else if(key == SDLK_LCTRL){
-                        // Menu 4 only
+                        // Menu 4,6 only
                         if (keyOfMenu==4||keyOfMenu==6){
                             char newMapFileName[40]={0};
                             sprintf(newMapFileName,"newLeeds.map");
@@ -1413,16 +1383,19 @@ int main(int argc, char* argv[]) {
                                 rawNodeList,
                                 wayList,
                                 geomList,
+                                
                                 linkNum,
                                 nodeNum,
                                 wayNum,
                                 geomNum,
+                                
                                 isAddLink,
                                 rawEdgeForAdd
                             );
 
                             newMapNum++;
                         }
+                        
                     }
                     
 
@@ -1430,31 +1403,7 @@ int main(int argc, char* argv[]) {
                 
 
 
-                    // else if (key == SDLK_RETURN)
-                    // {
-                    //     SDL_StopTextInput();
-                    //     int speed = atoi(text);
-                    //     editEdge(speed, allNodes, shortest_path, G, Edge);
-                    //     printf("%d\n", speed);
-                    //     // for(int i = 0; i <G->edge_num; i++){
-                    //     // if(Edge[i].speed != 0){
-                    //     //     printf("%d %d\n",Edge[i].edge_id,Edge[i].speed);
-                    //     // }
-                    //     // }
-                    //     deletePath(&necPathNodeIndex, &allNodes, shortest_path, &shortest_distance, pathPoints);
-                    // }
-                    // else if(key == SDLK_LALT)
-                    // {
-                    //     isKeyDown = 1;
-                    // }
-                    // else if(key  == SDLK_LCTRL){
-                    //     isKeyDown = 2;
-                    // }
-                    // else if (key == SDLK_s && isKeyDown == 2)
-                    // {
-                    //     // printf("!!!");
-                    //     writeIntoFile("leeds2.txt",G,Vertex,Edge,Geom,Way);
-                    // }
+                    
                     break;
                 }
                 case SDL_TEXTINPUT:
@@ -1479,7 +1428,7 @@ int main(int argc, char* argv[]) {
                         
                         
                     }else if(keyOfMenu==5){
-                        if (((strcmp(ev.text.text, "5")||clearByRight) == 0)&& (isFirst)){
+                        if (((strcmp(ev.text.text, "5") == 0)||clearByRight)&& (isFirst)){
                             isFirst=false;
                             memset(text5, 0, sizeof(text5));
                         }

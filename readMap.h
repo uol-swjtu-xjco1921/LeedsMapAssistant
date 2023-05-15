@@ -19,6 +19,7 @@ typedef struct _RawEdge {
     double land; // land value in the 'link' label
     char* poi; // poi info in the 'link' label
     double speed;
+    bool isDefault;
 }RawEdge;
 
 typedef struct _RawNode { 
@@ -45,6 +46,11 @@ typedef struct _Other{
 // <geom id=27776429 node=304990743 node=304990745 node=304990746 node=1862252982 
 // node=1160269682 node=1160269486 node=304990747 node=304990748 node=304990749 node=304990743 /geom>
 
+typedef struct _Speed
+{
+    int linkId;
+    double value;
+}Speed;
 
 
 typedef struct _Pair {
@@ -61,6 +67,7 @@ int getRawNodeNum(char* mapFileName);
 int getRawLinkNum(char* mapFileName);
 int getRawWayNum(char* mapFileName);
 int getRawGeomNum(char* mapFileName);
+int getSpeedNum(char* mapFileName);
 int compare_pair_key(const void *a, const void *b);
 int find_value_by_key(Pair* pairs, int n, int key);
 int find_key_by_value(Pair* pairs2, int n, int value);
@@ -71,7 +78,7 @@ int getWayEachNodeNum(char* mapFileName, Way* wayList);
 int getRawWay(char* mapFileName, Way* wayList, int wayNum, Pair* pairs,int nodeNum);
 int getGeomEachNodeNum(char* mapFileName, Geom* geomList);
 int getRawGeom(char* mapFileName, Geom* geomList, int geomNum, Pair* pairs,int nodeNum);
-
+int getRawSpeed(char* mapFileName, Speed* speedList, int speedNum);
 // for debugging
 void printRawEdgeList(RawEdge* rawEdgeList, int numEdges);
 void printRawNodeList(RawNode* rawNodeList, int numNodes);
