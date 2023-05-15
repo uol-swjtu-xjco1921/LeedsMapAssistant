@@ -386,13 +386,13 @@ int main(int argc, char* argv[]) {
     // int canClear=0;
     int keyOfMenu=-1;
     int oid[50];
-    char text3[3][100];
+    char text3[3][1000];
     memset(oid, -1, sizeof(oid));
     bool stopSelect=false;
     double tmpDist3=0;
-    char text4[50]={};
-    char text5[50]={};
-    char text6[100]={};
+    char text4[500]={};
+    char text5[500]={};
+    char text6[1000]={};
     // char text4cp[50]={};
     // int textPos=-1;
     bool isFirst=true;
@@ -725,7 +725,7 @@ int main(int argc, char* argv[]) {
                             int x = ev.button.x;
                             int y = ev.button.y;
                             n=n+1;
-                            printf("click point pos: (%d ,%d)\n", x,y);
+                            // printf("click point pos: (%d ,%d)\n", x,y);
                             oid[n-1]=findNearestNode(rawNodeList,nodeNum,x,y,bounding);
                             
                             if(oid[n-1]!=-1&&validNode[oid[n-1]])
