@@ -19,12 +19,16 @@
 #define X_SIZE 1600
 #define Y_SIZE 960
 #define MAP_X_SIZE 1200
-// #define RADIO 0.8
+
 SDL_Rect *graphicPoints;
 SDL_Rect *pathPoints;
 SDL_Rect *textBox;
 SDL_Window *window;
 SDL_Renderer *renderer;
+
+// Prints text on the screen at the specified coordinates and with the specified box size
+// Takes the width, height, box size, and input text as parameters
+// Returns 0 on success
 
 int printText(int wd, int ht, int boxSize, char *input)
 {
@@ -472,31 +476,25 @@ int main(int argc, char *argv[])
                                 {
                                     printTextSize(1200, h_tmp, 40, text[6], 30);
                                     h_tmp += 40;
-                                    printf("%d\n", h_tmp);
+                                    
 
                                     printText(1220, h_tmp, 30, text[0]);
                                     h_tmp += 30;
-                                    printf("%d\n", h_tmp);
 
                                     printText(1220, h_tmp, 30, text[1]);
                                     h_tmp += 30;
-                                    printf("%d\n", h_tmp);
 
                                     printText(1220, h_tmp, 30, text[2]);
                                     h_tmp += 90;
-                                    printf("%d\n", h_tmp);
 
                                     printText(1220, h_tmp, 30, text[3]);
                                     h_tmp += 30;
-                                    printf("%d\n", h_tmp);
 
                                     printText(1220, h_tmp, 30, text[4]);
                                     h_tmp += 30;
-                                    printf("%d\n", h_tmp);
 
                                     printText(1220, h_tmp, 30, text[5]);
                                     h_tmp += 30;
-                                    printf("%d\n", h_tmp);
 
                                     isPrint = true;
                                 }
@@ -624,31 +622,24 @@ int main(int argc, char *argv[])
 
                                 printTextSize(1200, h_tmp, 40, text[6], 40);
                                 h_tmp += 40;
-                                printf("%d\n", h_tmp);
 
                                 printText(1220, h_tmp, 30, text[0]);
                                 h_tmp += 30;
-                                printf("%d\n", h_tmp);
 
                                 printText(1220, h_tmp, 30, text[1]);
                                 h_tmp += 30;
-                                printf("%d\n", h_tmp);
 
                                 printText(1220, h_tmp, 30, text[2]);
                                 h_tmp += 90;
-                                printf("%d\n", h_tmp);
 
                                 printText(1220, h_tmp, 30, text[3]);
                                 h_tmp += 30;
-                                printf("%d\n", h_tmp);
 
                                 printText(1220, h_tmp, 30, text[4]);
                                 h_tmp += 30;
-                                printf("%d\n", h_tmp);
 
                                 printText(1220, h_tmp, 30, text[5]);
                                 h_tmp += 30;
-                                printf("%d\n", h_tmp);
 
                                 isPrint = true;
                             }
@@ -802,8 +793,6 @@ int main(int argc, char *argv[])
                                 SDL_RenderPresent(renderer);
                                 printf("At No.%d pos(id = %d/%d): (%d, %d)\n", n, oid[n - 1], find_key_by_value(pairs2, nodeNum, oid[n - 1]), graphicPoints[oid[n - 1]].x, graphicPoints[oid[n - 1]].y);
 
-                                // sprintf(text3[0], "At No.%d pos(id = %d): (%d, %d)\n",n,oid[n-1], graphicPoints[oid[n-1]].x, graphicPoints[oid[n-1]].y);
-                                // SDL_RenderPresent(renderer);
                             }
                             else
                             {
@@ -821,7 +810,6 @@ int main(int argc, char *argv[])
                             isFirst = true;
                             clearByRight = true;
                         }
-                        // keyOfMenu=-1;
                         n = 0;
                         oid[0] = -1;
                         oid[1] = -1;
@@ -829,12 +817,14 @@ int main(int argc, char *argv[])
 
                         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
                         SDL_RenderClear(renderer);
-                        // initSDL(nodeNum, graphicPoints, adjList, rawNodeList,geomList,geomNum, bounding, validNode);
                         initSDL(nodeNum, graphicPoints, adjList, rawNodeList, bounding, validNode);
                         printTextSize(1210, 50, 35, "Edit Link", 35);
+                        printTextSize(1220, 200, 25, "please click 2 points and", 25);
+                        printTextSize(1220, 240, 25, "enter 2 numbers spt by a space!", 25);
+                        printTextSize(1220, 280, 25, "0: clear; 1: veg; 2: arch ", 25);
+                        printTextSize(1220, 320, 25, "3: land; 4: speed; 5: len", 25);
                         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
                         SDL_RenderDrawRect(renderer, textBox);
-                        // printMenu();
                         SDL_RenderPresent(renderer);
                     }
                     break;
@@ -872,7 +862,7 @@ int main(int argc, char *argv[])
                         SDL_RenderClear(renderer);
                         initSDL(nodeNum, graphicPoints, adjList, rawNodeList, bounding, validNode);
                         printTextSize(1210, 50, 35, "Search Node", 35);
-
+                        printTextSize(1210, 285, 30, "Enter the rawId", 30);
                         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
                         SDL_RenderDrawRect(renderer, textBox);
                         SDL_RenderPresent(renderer);
@@ -1018,6 +1008,8 @@ int main(int argc, char *argv[])
                     printTextSize(1210, 50, 35, "Edit Link", 35);
                     printTextSize(1220, 200, 25, "please click 2 points and", 25);
                     printTextSize(1220, 240, 25, "enter 2 numbers spt by a space!", 25);
+                    printTextSize(1220, 280, 25, "0: clear; 1: veg; 2: arch ", 25);
+                    printTextSize(1220, 320, 25, "3: land; 4: speed; 5: len", 25);
 
                     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
                     SDL_RenderDrawRect(renderer, textBox);
@@ -1145,7 +1137,7 @@ int main(int argc, char *argv[])
 
                         sprintf(text3d[0], "Min distance= %.3lf", tmpDist3);
 
-                        printTextSize(1220, 280, 30, text3d[0], 30);
+                        printTextSize(1220, 480, 30, text3d[0], 30);
 
                         SDL_RenderPresent(renderer);
                         fclose(outfp);
@@ -1172,23 +1164,23 @@ int main(int argc, char *argv[])
                                     if (mode != 0)
                                     {
 
-                                        printTextSize(1220, 280, 30, "Edit Successfully! ", 30);
-                                        printTextSize(1220, 320, 30, "Click 'ctrl' to save map file now.", 25);
-                                        printTextSize(1220, 360, 30, "Or 'esc' to abort change.", 25);
+                                        printTextSize(1220, 480, 30, "Edit Successfully! ", 30);
+                                        printTextSize(1220, 520, 30, "Click 'ctrl' to save map file now.", 25);
+                                        printTextSize(1220, 560, 30, "Or 'esc' to abort change.", 25);
 
                                         SDL_RenderPresent(renderer);
                                     }
                                     else
                                     {
                                         printf("clear editLog.txt. Done!\n");
-                                        printTextSize(1220, 150, 30, "clear editLog.txt. Done!", 30);
+                                        printTextSize(1220, 590, 30, "clear editLog.txt. Done!", 30);
                                         SDL_RenderPresent(renderer);
                                     }
                                 }
                                 else
                                 {
                                     printf("Bad mode number\n");
-                                    printTextSize(1220, 250, 30, "Bad mode number", 30);
+                                    printTextSize(1220, 590, 30, "Bad mode number", 30);
 
                                     SDL_RenderPresent(renderer);
                                 }
@@ -1197,8 +1189,8 @@ int main(int argc, char *argv[])
                             else
                             {
                                 printf("No Related Link found\n");
-                                printTextSize(1220, 280, 30, "No Related Link found", 30);
-                                printTextSize(1220, 320, 30, "Clear and try again", 30);
+                                printTextSize(1220, 680, 30, "No Related Link found", 30);
+                                printTextSize(1220, 720, 30, "Clear and try again", 30);
 
                                 SDL_RenderPresent(renderer);
                             }
@@ -1227,7 +1219,7 @@ int main(int argc, char *argv[])
                         }
                         else
                         {
-                            fprintf(stderr, "Bad argument input!\n");
+                            // fprintf(stderr, "Bad argument input!\n");
                             printTextSize(1220, 250, 25, "Bad argument input!", 25);
                             SDL_RenderPresent(renderer);
                         }

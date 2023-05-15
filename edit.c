@@ -1,20 +1,30 @@
 #include "edit.h"
 
 
+/**
+ * Purpose: Modify the value of a specific attribute of a link (edge) in the map.
+ * 
+ * Parameters:
+ *   mode: Mode indicating which attribute to modify (0-5).
+ *   rawEdgeList: Array of RawEdge structures representing the links.
+ *   changeVal: New value to assign to the specified attribute.
+ *   linkId: Index of the link to modify in the rawEdgeList.
+ * 
+ * Returns:
+ *   0 if changing successfully, -10 if the mode is invalid.
+ */
 
 int editLinkVal(int mode, RawEdge* rawEdgeList, double changeVal, int linkId){
     if (!(mode==1||mode==2||mode==3||mode==4||mode==5||mode==0)){
         fprintf(stderr, "Bad argument input!\n");
         return -10;
     }
-    // FILE* fp=fopen("editLog.txt","a");
     int i=linkId;
     switch (mode)
     {   
         case 0:
         {   
             FILE* fp=fopen("editLog.txt","w");
-            // printf("clear editLog.txt\n");
             fprintf(fp,"clear editLog.txt. Done!\n");
             fclose(fp);
             break;
@@ -69,7 +79,24 @@ int editLinkVal(int mode, RawEdge* rawEdgeList, double changeVal, int linkId){
     
     return 0;
 }
-
+/**
+ * Purpose: Add a new link (edge) to the map.
+ * 
+ * Parameters:
+ *   rawEdgeForAdd: Pointer to a RawEdge structure to store the new link.
+ *   addId: ID of the new link.
+ *   addNodeId1: ID of the first node of the new link.
+ *   addNodeId2: ID of the second node of the new link.
+ *   addWay: Way of the new link.
+ *   addLen: Length of the new link.
+ *   addPoi: Point of Interest of the new link.
+ *   isAddLink: Pointer to a boolean variable indicating if a link is added.
+ *   pairs2: Array of Pair structures representing node pairs.
+ *   nodeNum: Number of nodes in the map.
+ * 
+ * Returns:
+ *   0 indicating successful addition of the link.
+ */
 int addLink(RawEdge* rawEdgeForAdd, int addId, int addNodeId1, int addNodeId2, int addWay, double addLen, char* addPoi, bool* isAddLink,Pair* pairs2,int nodeNum){
     if(addId!=-1&&addWay!=-1&&addLen>=0){
         *isAddLink=true;
@@ -95,26 +122,36 @@ int addLink(RawEdge* rawEdgeForAdd, int addId, int addNodeId1, int addNodeId2, i
         
         char tmp[20]={};
         sprintf(tmp,"%s,;/link>",addPoi);
-        // printf("%s||%s\n",tmp,rawEdgeForAdd->poi);
 
         strcpy(rawEdgeForAdd->poi,tmp);
         
         
 
-        // printf("poi: %s\n", rawEdgeForAdd->poi);
 
         
     }
     return 0;
 }
-
+/* This function writes the edited map to a file.
+ * Parameters:
+ *   newMapFileName: Name of the file to write the map to.
+ *   bounding: Array containing the bounding coordinates.
+ *   rawEdgeList: Array of RawEdge structures representing the links.
+ *   rawNodeList: Array of RawNode structures representing the nodes.
+ *   wayList: Array of Way structures representing the ways.
+ *   geomList: Array of Geom structures representing the geometries.
+ *   linkNum: Total number of links.
+ *   nodeNum: Total number of nodes.
+ *   wayNum: Total number of ways.
+ *   geomNum: Total number of geometries.
+ *   isAddLink: Boolean indicating whether a link was added or not.
+ *   rawEdgeForAdd: Pointer to the RawEdge structure representing the added link.
+ * Returns: 0 on success.
+*/
 int writeEditedMap(char* newMapFileName,double* bounding, RawEdge* rawEdgeList, RawNode* rawNodeList, Way* wayList, Geom* geomList, int linkNum,int nodeNum,int wayNum, int geomNum,bool isAddLink, RawEdge*rawEdgeForAdd){
     FILE* fp=fopen(newMapFileName,"w");
     // write bounding tag
-    // double minLat = bounding[0];
-    // double minLon = bounding[1];
-    // double maxLat = bounding[2];
-    // double maxLon = bounding[3];
+    
     fprintf(fp,"<bounding minLat=%.6lf minLon=%.6lf maxLat=%.6lf maxLon=%.6lf /bounding>\n",bounding[0],bounding[1],bounding[2],bounding[3]);
     // <link id=-2143392622 node=-8847 node=-8849 way=-8850 length=11.006410 veg=0.000000 arch=0.000000 land=0.000000 POI=;/link>
     for(int i=0;i<linkNum;i++){

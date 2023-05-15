@@ -8,7 +8,14 @@
 #define DELTA 1e-7
 #define DBL_MAX_ 1e15 
 
-
+/**
+ * initAdjList: initialize dijkstra
+ * 
+ * nodeNum: number of node store in map.
+ * 
+ * Return:
+ *   Pointer to the newly initialized AdjList.
+ */
 AdjList* initAdjList(int nodeNum) {
     // malloc new adjList and edges inside
     AdjList* adjList = (AdjList*)malloc(sizeof(AdjList));
@@ -21,28 +28,49 @@ AdjList* initAdjList(int nodeNum) {
 
     return adjList;
 }
-
+/**
+ * Purpose: Add an edge to the adjacency list.
+ * 
+ * Parameters:
+ *   adjList: Pointer to the AdjList.
+ *   start: Starting node of the edge.
+ *   dest: Destination node of the edge.
+ *   len: Length or weight of the edge.
+ */
 void addEdge(AdjList* adjList, int start, int dest, double len) {
     Edge* edge = (Edge*)malloc(sizeof(Edge));
     edge->vertex = dest;
-    // printf("%d ",edge->vertex);
     edge->len = len;
     edge->next = adjList->adjLines[start];
     
     adjList->adjLines[start] = edge;
-    // printf("%d\n",adjList->lineNum);
 }
+/**
+ * Purpose: Add an edge to the adjacency list for min time.
+ * 
+ * Parameters:
+ *   adjList: Pointer to the AdjList.
+ *   start: Starting node of the edge.
+ *   dest: Destination node of the edge.
+ *   len: Length or weight of the edge.
+ *   speed: Max speed of certain link.
+ */
 void addEdgeTime(AdjList* adjList, int start, int dest, double len, double speed) {
     Edge* edge = (Edge*)malloc(sizeof(Edge));
     edge->vertex = dest;
-    // printf("%d ",edge->vertex);
     edge->len = len/speed;
     edge->next = adjList->adjLines[start];
     
     adjList->adjLines[start] = edge;
-    // printf("%d\n",adjList->lineNum);
 }
-
+/**
+ * Purpose: Add total edges to the adjacency list.
+ * 
+ * Parameters:
+ *   adjList: Pointer to the AdjList.
+ *   rawEdgeList: Pointer to the list of raw edges(links).
+ *   edgeNum: Number of edges in the rawEdgeList.
+ */
 void addTotalEdge(AdjList* adjList, RawEdge* rawEdgeList, int edgeNum){
     // quickly construct adjList
     for (int i=0;i<edgeNum;i++){
@@ -54,7 +82,17 @@ void addTotalEdge(AdjList* adjList, RawEdge* rawEdgeList, int edgeNum){
         
     }
 }
-
+/**
+ * Purpose: Find the nodeId with min distance
+ * 
+ * Parameters:
+ *   dist: list of distances from a node to each node in the map.
+ *   sptSet: list indicating whether a node is included in the shortest path tree.
+ *   nodeNum: number of nodes.
+ * 
+ * Return:
+ *   Node ID with the min distance.
+ */
 int minDist(double *dist, bool *sptSet, int nodeNum) {
     // var to store the index of min dist
     int idMin;
@@ -80,7 +118,14 @@ int minDist(double *dist, bool *sptSet, int nodeNum) {
 
     return idMin;
 }
+// The functions below are for debugging.
 
+/**
+ * Purpose: Print the adjacency list.
+ * 
+ * Parameters:
+ *   adjList: Pointer to the AdjList.
+ */
 void printAdjList(AdjList* adjList){
     puts("");
     for(int i=0;i<adjList->lineNum;i++){
@@ -93,15 +138,18 @@ void printAdjList(AdjList* adjList){
         puts("");
     }
 }
-
+/**
+ * Purpose: Print the distances of nodes in the graph.
+ * 
+ * Parameters:
+ *   dist: Array of distances.
+ *   nodeNum: Number of nodes.
+ *   pair2: Pair ordered by new id
+ */
 void printDist(double* dist, int nodeNum, Pair* pair2) {
     printf("new id\t    original id\t    min dist\n");
     for (int i = 0; i < nodeNum; i++){
-        // if(fabs(DBL_MAX_-dist[i])>DELTA){
-        //     printf("%d\t    %d\t   %lf\n", i, find_key_by_value(pair2, nodeNum, i), dist[i]);
-        // }else{
-        //     printf("%d\t    %d\t   Inf\n", i, find_key_by_value(pair2, nodeNum, i));
-        // }
+        
         printf("%d\t    %d\t   %lf\n", i, find_key_by_value(pair2, nodeNum, i), dist[i]);
     }
 }
